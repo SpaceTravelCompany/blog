@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xfit Blog</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="container">
+                <div class="nav-brand">
+                    <a href="index.html">Xfit Blog</a>
+                </div>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="#home" class="nav-link active">홈</a></li>
+                    <li><a href="#about" class="nav-link">소개</a></li>
+                    <li><a href="#posts" class="nav-link">포스트</a></li>
+                    <li><a href="#contact" class="nav-link">연락처</a></li>
+                </ul>
+                <div class="nav-actions">
+                    <button class="theme-toggle" id="themeToggle" aria-label="다크 모드 토글">
+                        <span class="theme-icon">🌙</span>
+                    </button>
+                    <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="메뉴 토글">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="main-content">
+        <div class="container">
+            <!-- 콘텐츠 레이아웃 -->
+            <div class="content-layout">
+                <!-- 메인 포스트 영역 -->
+                <div class="posts-section">
+                    <h2 class="section-title">최신 포스트</h2>
+                    
+                    <!-- 블로그 포스트 카드들 (동적으로 로드됨) -->
+                    <div id="postsContainer">
+                        <div class="loading-message">포스트를 불러오는 중...</div>
+                    </div>
+
+                    <!-- 페이지네이션 -->
+                    <div class="pagination" id="pagination">
+                        <!-- 동적으로 생성됨 -->
+                    </div>
+                </div>
+
+                <!-- 사이드바 -->
+                <aside class="sidebar">
+                    <!-- 검색 -->
+                    <div class="sidebar-widget">
+                        <h3 class="widget-title">검색</h3>
+                        <form class="search-form">
+                            <input type="search" placeholder="검색어를 입력하세요..." class="search-input">
+                            <button type="submit" class="search-btn">검색</button>
+                        </form>
+                    </div>
+
+                    <!-- 카테고리 -->
+                    <div class="sidebar-widget">
+                        <h3 class="widget-title">카테고리</h3>
+                        <ul class="category-list" id="categoryList">
+                            <li>로딩 중...</li>
+                        </ul>
+                    </div>
+
+                    <!-- 최근 포스트 -->
+                    <div class="sidebar-widget">
+                        <h3 class="widget-title">최근 포스트</h3>
+                        <ul class="recent-posts" id="recentPostsContainer">
+                            <li>로딩 중...</li>
+                        </ul>
+                    </div>
+
+                </aside>
+            </div>
+        </div>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>My Blog</h4>
+                    <p>생각을 나누고 지식을 공유하는 공간입니다.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>빠른 링크</h4>
+                    <ul>
+                        <li><a href="#home">홈</a></li>
+                        <li><a href="#about">소개</a></li>
+                        <li><a href="#posts">포스트</a></li>
+                        <li><a href="#contact">연락처</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>소셜 미디어</h4>
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook">Facebook</a>
+                        <a href="#" aria-label="Twitter">Twitter</a>
+                        <a href="#" aria-label="Instagram">Instagram</a>
+                        <a href="#" aria-label="GitHub">GitHub</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Xfit Blog. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
