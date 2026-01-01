@@ -30,15 +30,6 @@ mobileMenuToggle.addEventListener('click', () => {
     mobileMenuToggle.classList.toggle('active');
 });
 
-// 메뉴 링크 클릭 시 모바일 메뉴 닫기
-const navLinks = document.querySelectorAll('.nav-link');
-navLinks.forEach(link => {
-    link.addEventListener('click', () => {
-        navMenu.classList.remove('active');
-        mobileMenuToggle.classList.remove('active');
-    });
-});
-
 // 스크롤 시 헤더 스타일 변경
 const header = document.querySelector('.header');
 let lastScroll = 0;
