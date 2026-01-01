@@ -46,17 +46,61 @@ window.addEventListener('scroll', () => {
     lastScroll = currentScroll;
 });
 
+// 검색 기능
+function searchPosts(term) {
+    searchTerm = term.trim().toLowerCase();
+    
+    if (!searchTerm) {
+        // 검색어가 없으면 전체 포스트 표시
+        filteredPosts = [];
+        selectedCategory = null;
+        displayPosts(1);
+        loadCategories();
+        return;
+    }
+    
+    // 제목, 요약, 카테고리에서 검색
+    filteredPosts = allPosts.filter(post => {
+        const titleMatch = post.title.toLowerCase().includes(searchTerm);
+        const excerptMatch = (post.excerpt || '').toLowerCase().includes(searchTerm);
+        const categoryMatch = (post.category || '').toLowerCase().includes(searchTerm);
+        
+        return titleMatch || excerptMatch || categoryMatch;
+    });
+    
+    // 검색 결과 표시
+    selectedCategory = null; // 카테고리 필터 해제
+    displayPosts(1);
+    loadCategories();
+}
+
 // 검색 폼 제출
 const searchForm = document.querySelector('.search-form');
 if (searchForm) {
+    const searchInput = searchForm.querySelector('.search-input');
+    
     searchForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const searchInput = searchForm.querySelector('.search-input');
-        const searchTerm = searchInput.value.trim();
-        
-        if (searchTerm) {
-            console.log(`검색어: "${searchTerm}"`);
-            // 실제 검색 기능 구현 시 여기에 로직 추가
+        const term = searchInput.value.trim();
+        searchPosts(term);
+    });
+    
+    // 검색어 입력 시 실시간 검색 (선택사항 - Enter 키나 검색 버튼 클릭 시에만 검색)
+    // 실시간 검색을 원하면 아래 주석을 해제하세요
+    /*
+    searchInput.addEventListener('input', (e) => {
+        const term = e.target.value.trim();
+        if (term.length >= 2 || term.length === 0) {
+            searchPosts(term);
+        }
+    });
+    */
+    
+    // 검색어 지우기 기능 (X 버튼 또는 전체 선택 후 삭제)
+    searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            searchInput.value = '';
+            searchPosts('');
         }
     });
 }
@@ -134,6 +178,7 @@ let currentPage = 1;
 const postsPerPage = 5;
 let totalPages = 0;
 let selectedCategory = null;
+let searchTerm = '';
 
 // 포스트 데이터 로드
 async function loadPostsData() {
@@ -159,12 +204,39 @@ async function displayPosts(page) {
     currentPage = page;
     
     // 필터링된 포스트 또는 전체 포스트 사용
-    const postsToDisplay = selectedCategory ? filteredPosts : allPosts;
+    // 검색어가 있으면 검색 결과 사용, 카테고리가 선택되어 있으면 카테고리 필터 결과 사용, 아니면 전체 포스트 사용
+    let postsToDisplay = allPosts;
+    if (searchTerm) {
+        postsToDisplay = filteredPosts;
+    } else if (selectedCategory) {
+        postsToDisplay = filteredPosts;
+    }
     const startIndex = (page - 1) * postsPerPage;
     const endIndex = startIndex + postsPerPage;
     const postsToShow = postsToDisplay.slice(startIndex, endIndex);
 
+    // 검색 결과 개수 표시 업데이트
+    updateSectionTitle(postsToDisplay.length, searchTerm);
+
     postsContainer.innerHTML = '';
+
+    // 검색 결과가 없을 때 메시지 표시
+    if (postsToDisplay.length === 0) {
+        if (searchTerm) {
+            postsContainer.innerHTML = `
+                <div class="no-posts">
+                    <p>검색 결과가 없습니다.</p>
+                    <p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">
+                        "<strong>${searchTerm}</strong>"에 대한 검색 결과를 찾을 수 없습니다.
+                    </p>
+                </div>
+            `;
+        } else {
+            postsContainer.innerHTML = '<div class="no-posts">포스트가 없습니다.</div>';
+        }
+        updatePagination();
+        return;
+    }
 
     // 각 포스트에 대해 HTML 파일 로드
     for (const post of postsToShow) {
@@ -194,13 +266,36 @@ async function displayPosts(page) {
     updatePagination();
 }
 
+// 섹션 제목 업데이트 (검색 결과 개수 표시)
+function updateSectionTitle(count, searchTerm) {
+    const sectionTitle = document.querySelector('.section-title');
+    if (!sectionTitle) return;
+    
+    if (searchTerm) {
+        sectionTitle.textContent = `검색 결과 (${count}개)`;
+        sectionTitle.style.display = 'block';
+    } else if (selectedCategory) {
+        sectionTitle.textContent = `${selectedCategory} 포스트 (${count}개)`;
+        sectionTitle.style.display = 'block';
+    } else {
+        // 검색어나 카테고리가 없을 때는 제목 숨기기
+        sectionTitle.style.display = 'none';
+    }
+}
+
 // 페이지네이션 업데이트
 function updatePagination() {
     const paginationContainer = document.getElementById('pagination');
     if (!paginationContainer) return;
 
     // 필터링된 포스트 또는 전체 포스트 사용
-    const postsToDisplay = selectedCategory ? filteredPosts : allPosts;
+    // 검색어가 있으면 검색 결과 사용, 카테고리가 선택되어 있으면 카테고리 필터 결과 사용, 아니면 전체 포스트 사용
+    let postsToDisplay = allPosts;
+    if (searchTerm) {
+        postsToDisplay = filteredPosts;
+    } else if (selectedCategory) {
+        postsToDisplay = filteredPosts;
+    }
     
     if (postsToDisplay.length === 0) {
         paginationContainer.innerHTML = '';
@@ -348,6 +443,13 @@ function filterByCategory(category) {
         selectedCategory = category;
         filteredPosts = allPosts.filter(post => post.category === category);
     }
+
+    searchTerm = ''; // 카테고리 선택 시 검색어 초기화
+    // 검색 입력 필드도 초기화
+    const searchInput = document.querySelector('.search-input');
+    if (searchInput) {
+        searchInput.value = '';
+    }
     
     // 카테고리 리스트 업데이트 (활성 상태 변경)
     loadCategories();
@@ -363,4 +465,3 @@ window.addEventListener('DOMContentLoaded', async () => {
     loadRecentPosts();
     loadCategories();
 });
-

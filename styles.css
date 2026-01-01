@@ -171,14 +171,15 @@ body {
 .content-layout {
     display: grid;
     grid-template-columns: 1fr 350px;
-    gap: 3rem;
-    margin-bottom: 3rem;
+    column-gap: 3rem;
+    row-gap: 2rem;
 }
 
 .section-title {
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: 700;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
+    margin-top: 1rem;
     color: var(--text-color);
 }
 
@@ -186,6 +187,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 2rem;
+    margin-top: 2rem;
 }
 
 .loading-message,
@@ -332,6 +334,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 2rem;
+    margin-top: 2rem;
 }
 
 .sidebar-widget {
@@ -504,7 +507,7 @@ body {
 /* 푸터 */
 .footer {
     background-color: var(--bg-light);
-    padding: 3rem 0 1rem;
+    padding: 1.5rem 0 1rem;
     margin-top: 4rem;
     border-top: 1px solid var(--border-color);
 }
@@ -620,6 +623,7 @@ body {
 
     .section-title {
         font-size: 1.5rem;
+        margin-top: 1rem;
     }
 
     .post-content {
