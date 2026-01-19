@@ -71,9 +71,6 @@ const postsPerPage = 5;
 let totalPages = 0;
 let selectedCategory = null;
 let searchTerm = '';
-let categoryMap = {};  // id -> category 매핑
-let dateMap = {};  // id -> date 매핑
-
 // 포스트 기본 데이터 로드 (posts.json에서 id, 카테고리, 제목, 날짜 정보)
 async function loadPostsData() {
     try {
@@ -83,16 +80,12 @@ async function loadPostsData() {
         }
         const data = await response.json();
         
-        // category_posts에서 카테고리, 날짜 매핑 생성
+        // category_posts에서 포스트 정보 추출
         const categoryPosts = data.find(item => item.category_posts)?.category_posts || [];
-        categoryMap = {};
-        dateMap = {};
         const postIds = [];
         
         categoryPosts.forEach(cat => {
             cat.posts.forEach(post => {
-                categoryMap[post.id] = cat.category;
-                dateMap[post.id] = post.date || '';
                 postIds.push({ 
                     id: post.id, 
                     category: cat.category, 
@@ -121,6 +114,9 @@ async function loadPostDetail(postId) {
         return loadedPosts[postId];
     }
     
+    // allPosts에서 기본 정보 가져오기
+    const postInfo = allPosts.find(p => p.id === postId);
+    
     try {
         const mdResponse = await fetch(`posts/${postId}.md`);
         if (!mdResponse.ok) return null;
@@ -131,8 +127,8 @@ async function loadPostDetail(postId) {
         const post = {
             id: postId,
             title: metadata.title || '제목 없음',
-            date: dateMap[postId] || '',
-            category: categoryMap[postId] || '기타',
+            date: postInfo?.date || '',
+            category: postInfo?.category || '기타',
             excerpt: extractExcerpt(body)
         };
         
