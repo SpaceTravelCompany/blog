@@ -74,7 +74,7 @@ let searchTerm = '';
 // 포스트 기본 데이터 로드 (posts.json에서 id, 카테고리, 제목, 날짜 정보)
 async function loadPostsData() {
     try {
-        const response = await fetch('posts/posts.json');
+        const response = await fetch('posts/posts.json', { cache: 'no-store' });
         if (!response.ok) {
             throw new Error('포스트를 불러올 수 없습니다.');
         }
@@ -118,7 +118,7 @@ async function loadPostDetail(postId) {
     const postInfo = allPosts.find(p => p.id === postId);
     
     try {
-        const mdResponse = await fetch(`posts/${postId}.md`);
+        const mdResponse = await fetch(`posts/${postId}.md`, { cache: 'no-store' });
         if (!mdResponse.ok) return null;
         
         const content = await mdResponse.text();

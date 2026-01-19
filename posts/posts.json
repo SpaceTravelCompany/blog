@@ -1,22 +1,17 @@
 [
 	{
-		"all_posts_count": 19
+		"all_posts_count": 18
 	},
 	{
 		"category_posts": [
 			{
 				"category": "기술",
-				"count": 9,
+				"count": 8,
 				"posts": [
 					{
-						"id": "19",
+						"id": "18",
 						"title": "Lua 가이드",
 						"date": "2026-01-20 01:30"
-					},
-					{
-						"id": "18",
-						"title": "웹 개발의 미래: 최신 트렌드와 기술",
-						"date": "2024-01-15 09:30"
 					},
 					{
 						"id": "15",

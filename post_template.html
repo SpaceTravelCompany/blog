@@ -156,7 +156,7 @@
         // posts.json에서 카테고리, 날짜 정보 가져오기
         async function getPostMeta(id) {
             try {
-                const response = await fetch('posts/posts.json');
+                const response = await fetch('posts/posts.json', { cache: 'no-store' });
                 if (!response.ok) return { category: '기타', date: '' };
                 
                 const data = await response.json();
@@ -184,7 +184,7 @@
             try {
                 // 포스트 내용과 메타정보 동시 로드
                 const [mdResponse, postMeta] = await Promise.all([
-                    fetch(`posts/${postId}.md`),
+                    fetch(`posts/${postId}.md`, { cache: 'no-store' }),
                     getPostMeta(postId)
                 ]);
                 
