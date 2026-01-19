@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="postTitle">포스트 - 우주여행사 Blog</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Prism.js 테마 (Tomorrow Night) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    
+    <!-- marked.js -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- Prism.js 코어 + 언어 지원 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markdown.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-odin.min.js"></script>
+    
+    <!-- Prism.js 플러그인 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="container">
+                <div class="nav-brand">
+                    <a href="index.html">우주여행사 Blog</a>
+                </div>
+                <ul class="nav-menu" id="navMenu">
+                </ul>
+                <div class="nav-actions">
+                    <button class="theme-toggle" id="themeToggle" aria-label="다크 모드 토글">
+                        <span class="theme-icon">🌙</span>
+                    </button>
+                    <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="메뉴 토글">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="main-content">
+        <div class="container">
+            <article class="post-detail">
+                <div class="post-header">
+                    <div class="post-meta">
+                        <span class="post-date" id="postDate"></span>
+                        <span class="post-category" id="postCategory"></span>
+                    </div>
+                    <h1 class="post-title" id="postTitleHeader"></h1>
+                </div>
+                <div class="post-body" id="postBody">
+                    <div class="loading-message">포스트를 불러오는 중...</div>
+                </div>
+                <div class="post-footer">
+                    <a href="index.html" class="back-to-list">← 목록으로 돌아가기</a>
+                </div>
+            </article>
+        </div>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>우주여행사 Blog</h4>
+                    <p>개발만하는 블로그입니다.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>소셜 미디어</h4>
+                    <div class="social-links">
+                        <a href="https://github.com/SpaceTravelCompany" aria-label="GitHub">GitHub</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 SpaceTravelCompany Blog. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 공통 스크립트 -->
+    <script src="common.js"></script>
+    
+    <!-- 포스트 페이지 전용 스크립트 -->
+    <script>
+        // URL에서 포스트 ID 가져오기
+        const urlParams = new URLSearchParams(window.location.search);
+        const postId = urlParams.get('id');
+
+        // marked 설정 - Prism.js와 연동
+        marked.setOptions({
+            highlight: function(code, lang) {
+                if (Prism.languages[lang]) {
+                    return Prism.highlight(code, Prism.languages[lang], lang);
+                }
+                return code;
+            },
+            langPrefix: 'language-'
+        });
+
+        // 포스트 로드
+        async function loadPost() {
+            if (!postId) {
+                document.getElementById('postBody').innerHTML = '<p>포스트를 찾을 수 없습니다.</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`posts/${postId}.md`);
+                if (!response.ok) {
+                    throw new Error('포스트를 불러올 수 없습니다.');
+                }
+
+                const content = await response.text();
+                const { metadata, body } = parseFrontmatter(content);
+
+                // 메타데이터 표시
+                document.getElementById('postDate').textContent = metadata.date || '';
+                document.getElementById('postCategory').textContent = metadata.category || '';
+                document.getElementById('postTitleHeader').textContent = metadata.title || '제목 없음';
+                document.title = `${metadata.title || '포스트'} - 우주여행사 Blog`;
+
+                // 마크다운 본문을 HTML로 변환
+                document.getElementById('postBody').innerHTML = marked.parse(body);
+                
+                // Prism.js로 코드 하이라이팅 적용
+                Prism.highlightAll();
+            } catch (error) {
+                console.error('포스트 로드 오류:', error);
+                document.getElementById('postBody').innerHTML = '<p>포스트를 불러오는 중 오류가 발생했습니다.</p>';
+            }
+        }
+
+        // 페이지 로드 시 포스트 로드
+        window.addEventListener('DOMContentLoaded', loadPost);
+    </script>
+</body>
+</html>

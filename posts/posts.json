@@ -1,122 +1,20 @@
 [
-    {
-        "file": "posts/post1.html",
-        "title": "웹 개발의 미래: 최신 트렌드와 기술",
-        "date": "2024년 1월 15일",
-        "category": "기술",
-        "excerpt": "웹 개발 분야는 빠르게 변화하고 있습니다. 최신 프레임워크와 도구들을 살펴보고, 앞으로의 웹 개발 트렌드를 예측해봅니다.",
-        "image": "https://via.placeholder.com/800x400/4A90E2/ffffff?text=Blog+Post+1"
-    },
-    {
-        "file": "posts/post2.html",
-        "title": "UI/UX 디자인의 핵심 원칙",
-        "date": "2024년 1월 10일",
-        "category": "디자인",
-        "excerpt": "사용자 경험을 향상시키는 디자인 원칙들을 알아보고, 실제 프로젝트에 적용할 수 있는 실용적인 팁을 공유합니다.",
-        "image": "https://via.placeholder.com/800x400/50C878/ffffff?text=Blog+Post+2"
-    },
-    {
-        "file": "posts/post3.html",
-        "title": "생산성을 높이는 개발 환경 설정",
-        "date": "2024년 1월 5일",
-        "category": "생활",
-        "excerpt": "효율적인 개발을 위한 도구와 설정 방법을 소개합니다. 시간을 절약하고 더 나은 코드를 작성하는 비결을 알아봅니다.",
-        "image": "https://via.placeholder.com/800x400/FF6B6B/ffffff?text=Blog+Post+3"
-    },
-    {
-        "file": "posts/post4.html",
-        "title": "JavaScript ES2024의 새로운 기능들",
-        "date": "2024년 1월 3일",
-        "category": "기술",
-        "excerpt": "최신 JavaScript 표준인 ES2024에서 추가된 새로운 기능들을 살펴보고, 실제 프로젝트에 어떻게 활용할 수 있는지 알아봅니다.",
-        "image": "https://via.placeholder.com/800x400/9B59B6/ffffff?text=Blog+Post+4"
-    },
-    {
-        "file": "posts/post5.html",
-        "title": "반응형 웹 디자인의 모범 사례",
-        "date": "2023년 12월 28일",
-        "category": "디자인",
-        "excerpt": "다양한 디바이스에서 완벽하게 작동하는 반응형 웹 디자인을 구현하기 위한 핵심 원칙과 실전 팁을 공유합니다.",
-        "image": "https://via.placeholder.com/800x400/3498DB/ffffff?text=Blog+Post+5"
-    },
-    {
-        "file": "posts/post6.html",
-        "title": "원격 근무 환경 최적화하기",
-        "date": "2023년 12월 20일",
-        "category": "생활",
-        "excerpt": "집에서도 효율적으로 일할 수 있는 원격 근무 환경을 구축하는 방법과 생산성을 높이는 팁을 소개합니다.",
-        "image": "https://via.placeholder.com/800x400/E74C3C/ffffff?text=Blog+Post+6"
-    },
-    {
-        "file": "posts/post7.html",
-        "title": "Git과 GitHub 활용 가이드",
-        "date": "2023년 12월 15일",
-        "category": "기술",
-        "excerpt": "버전 관리 시스템 Git과 협업 플랫폼 GitHub를 효과적으로 사용하는 방법을 단계별로 설명합니다.",
-        "image": "https://via.placeholder.com/800x400/F39C12/ffffff?text=Blog+Post+7"
-    },
-    {
-        "file": "posts/post8.html",
-        "title": "색상 이론과 웹 디자인",
-        "date": "2023년 12월 10일",
-        "category": "디자인",
-        "excerpt": "효과적인 웹 디자인을 위한 색상 이론의 기초와 실제 적용 사례를 통해 색상의 힘을 이해합니다.",
-        "image": "https://via.placeholder.com/800x400/1ABC9C/ffffff?text=Blog+Post+8"
-    },
-    {
-        "file": "posts/post9.html",
-        "title": "건강한 개발자 라이프스타일",
-        "date": "2023년 12월 5일",
-        "category": "생활",
-        "excerpt": "장시간 컴퓨터 앞에서 일하는 개발자들을 위한 건강 관리 팁과 웰빙 습관을 제안합니다.",
-        "image": "https://via.placeholder.com/800x400/34495E/ffffff?text=Blog+Post+9"
-    },
-    {
-        "file": "posts/post10.html",
-        "title": "RESTful API 설계 원칙",
-        "date": "2023년 11월 30일",
-        "category": "기술",
-        "excerpt": "확장 가능하고 유지보수가 쉬운 RESTful API를 설계하기 위한 베스트 프랙티스와 원칙을 알아봅니다.",
-        "image": "https://via.placeholder.com/800x400/E67E22/ffffff?text=Blog+Post+10"
-    },
-    {
-        "file": "posts/post11.html",
-        "title": "타이포그래피의 중요성",
-        "date": "2023년 11월 25일",
-        "category": "디자인",
-        "excerpt": "웹 디자인에서 타이포그래피가 사용자 경험에 미치는 영향과 올바른 폰트 선택 방법을 설명합니다.",
-        "image": "https://via.placeholder.com/800x400/16A085/ffffff?text=Blog+Post+11"
-    },
-    {
-        "file": "posts/post12.html",
-        "title": "효과적인 학습 방법론",
-        "date": "2023년 11월 20일",
-        "category": "생활",
-        "excerpt": "새로운 기술을 빠르고 효과적으로 학습하는 방법과 장기 기억에 도움이 되는 학습 전략을 공유합니다.",
-        "image": "https://via.placeholder.com/800x400/27AE60/ffffff?text=Blog+Post+12"
-    },
-    {
-        "file": "posts/post13.html",
-        "title": "데이터베이스 최적화 기법",
-        "date": "2023년 11월 15일",
-        "category": "기술",
-        "excerpt": "대용량 데이터를 효율적으로 처리하기 위한 데이터베이스 최적화 전략과 인덱싱 기법을 다룹니다.",
-        "image": "https://via.placeholder.com/800x400/2980B9/ffffff?text=Blog+Post+13"
-    },
-    {
-        "file": "posts/post14.html",
-        "title": "모바일 퍼스트 디자인 전략",
-        "date": "2023년 11월 10일",
-        "category": "디자인",
-        "excerpt": "모바일 사용자가 증가하는 시대에 모바일 퍼스트 접근 방식으로 웹사이트를 디자인하는 방법을 알아봅니다.",
-        "image": "https://via.placeholder.com/800x400/8E44AD/ffffff?text=Blog+Post+14"
-    },
-    {
-        "file": "posts/post15.html",
-        "title": "워크라이프 밸런스 유지하기",
-        "date": "2023년 11월 5일",
-        "category": "생활",
-        "excerpt": "개발자로서 업무와 개인 생활의 균형을 맞추는 방법과 번아웃을 예방하는 실용적인 조언을 제공합니다.",
-        "image": "https://via.placeholder.com/800x400/C0392B/ffffff?text=Blog+Post+15"
-    }
+    { "id": "1" },
+    { "id": "2" },
+    { "id": "3" },
+    { "id": "4" },
+    { "id": "5" },
+    { "id": "6" },
+    { "id": "7" },
+    { "id": "8" },
+    { "id": "9" },
+    { "id": "10" },
+    { "id": "11" },
+    { "id": "12" },
+    { "id": "13" },
+    { "id": "14" },
+    { "id": "15" },
+    { "id": "16" },
+    { "id": "17" },
+    { "id": "18" }
 ]

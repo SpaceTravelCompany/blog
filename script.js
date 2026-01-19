@@ -1,50 +1,6 @@
-// 다크 모드 토글
-const themeToggle = document.getElementById('themeToggle');
-const themeIcon = themeToggle.querySelector('.theme-icon');
-
-// 저장된 테마 불러오기
-const currentTheme = localStorage.getItem('theme') || 'light';
-document.documentElement.setAttribute('data-theme', currentTheme);
-updateThemeIcon(currentTheme);
-
-// 테마 토글 이벤트
-themeToggle.addEventListener('click', () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-    updateThemeIcon(newTheme);
-});
-
-function updateThemeIcon(theme) {
-    themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
-}
-
-// 모바일 메뉴 토글
-const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-const navMenu = document.getElementById('navMenu');
-
-mobileMenuToggle.addEventListener('click', () => {
-    navMenu.classList.toggle('active');
-    mobileMenuToggle.classList.toggle('active');
-});
-
-// 스크롤 시 헤더 스타일 변경
-const header = document.querySelector('.header');
-let lastScroll = 0;
-
-window.addEventListener('scroll', () => {
-    const currentScroll = window.pageYOffset;
-    
-    if (currentScroll > 100) {
-        header.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.15)';
-    } else {
-        header.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
-    }
-    
-    lastScroll = currentScroll;
-});
+// ========================================
+// 메인 페이지 전용 스크립트 (index.html)
+// ========================================
 
 // 검색 기능
 function searchPosts(term) {
@@ -85,18 +41,7 @@ if (searchForm) {
         searchPosts(term);
     });
     
-    // 검색어 입력 시 실시간 검색 (선택사항 - Enter 키나 검색 버튼 클릭 시에만 검색)
-    // 실시간 검색을 원하면 아래 주석을 해제하세요
-    /*
-    searchInput.addEventListener('input', (e) => {
-        const term = e.target.value.trim();
-        if (term.length >= 2 || term.length === 0) {
-            searchPosts(term);
-        }
-    });
-    */
-    
-    // 검색어 지우기 기능 (X 버튼 또는 전체 선택 후 삭제)
+    // 검색어 지우기 기능 (Escape 키)
     searchInput.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             searchInput.value = '';
@@ -104,21 +49,6 @@ if (searchForm) {
         }
     });
 }
-
-// 부드러운 스크롤
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-    });
-});
 
 // 포스트 카드 애니메이션 (Intersection Observer)
 const observerOptions = {
@@ -135,42 +65,6 @@ const observer = new IntersectionObserver((entries) => {
     });
 }, observerOptions);
 
-// 포스트 카드에 애니메이션 적용
-document.querySelectorAll('.post-card').forEach((card, index) => {
-    card.style.opacity = '0';
-    card.style.transform = 'translateY(20px)';
-    card.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
-    observer.observe(card);
-});
-
-// 페이지 로드 시 애니메이션
-window.addEventListener('load', () => {
-    document.body.style.opacity = '0';
-    setTimeout(() => {
-        document.body.style.transition = 'opacity 0.5s ease';
-        document.body.style.opacity = '1';
-    }, 100);
-});
-
-// 카테고리 및 태그 클릭 이벤트 (예시)
-document.querySelectorAll('.category-list a, .tag').forEach(item => {
-    item.addEventListener('click', (e) => {
-        e.preventDefault();
-        const text = item.textContent.trim();
-        console.log(`${text} 클릭됨 - 필터링 기능 구현 예정`);
-        // 실제 필터링 기능 구현 시 여기에 로직 추가
-    });
-});
-
-// 최근 포스트 클릭 이벤트
-document.querySelectorAll('.recent-posts a').forEach(item => {
-    item.addEventListener('click', (e) => {
-        e.preventDefault();
-        console.log('포스트 상세 페이지로 이동 - 구현 예정');
-        // 실제 포스트 상세 페이지 이동 로직 추가
-    });
-});
-
 // 전역 변수
 let allPosts = [];
 let filteredPosts = [];
@@ -180,14 +74,38 @@ let totalPages = 0;
 let selectedCategory = null;
 let searchTerm = '';
 
-// 포스트 데이터 로드
+// 포스트 데이터 로드 (MD 파일에서 메타데이터 추출)
 async function loadPostsData() {
     try {
         const response = await fetch('posts/posts.json');
         if (!response.ok) {
             throw new Error('포스트를 불러올 수 없습니다.');
         }
-        allPosts = await response.json();
+        const postIds = await response.json();
+        
+        // 각 MD 파일에서 메타데이터와 excerpt 추출
+        const posts = [];
+        for (const postInfo of postIds) {
+            try {
+                const mdResponse = await fetch(`posts/${postInfo.id}.md`);
+                if (!mdResponse.ok) continue;
+                
+                const content = await mdResponse.text();
+                const { metadata, body } = parseFrontmatter(content);
+                
+                posts.push({
+                    id: postInfo.id,
+                    title: metadata.title || '제목 없음',
+                    date: metadata.date || '',
+                    category: metadata.category || '기타',
+                    excerpt: extractExcerpt(body)
+                });
+            } catch (error) {
+                console.error(`포스트 ${postInfo.id} 로드 실패:`, error);
+            }
+        }
+        
+        allPosts = posts;
         totalPages = Math.ceil(allPosts.length / postsPerPage);
         return allPosts;
     } catch (error) {
@@ -204,7 +122,6 @@ async function displayPosts(page) {
     currentPage = page;
     
     // 필터링된 포스트 또는 전체 포스트 사용
-    // 검색어가 있으면 검색 결과 사용, 카테고리가 선택되어 있으면 카테고리 필터 결과 사용, 아니면 전체 포스트 사용
     let postsToDisplay = allPosts;
     if (searchTerm) {
         postsToDisplay = filteredPosts;
@@ -238,28 +155,30 @@ async function displayPosts(page) {
         return;
     }
 
-    // 각 포스트에 대해 HTML 파일 로드
+    // 각 포스트에 대해 카드 생성
     for (const post of postsToShow) {
-        try {
-            const postResponse = await fetch(post.file);
-            if (!postResponse.ok) continue;
+        const article = document.createElement('article');
+        article.className = 'post-card';
+        article.innerHTML = `
+            <div class="post-content">
+                <div class="post-meta">
+                    <span class="post-date">${post.date}</span>
+                    <span class="post-category">${post.category}</span>
+                </div>
+                <h3 class="post-title">
+                    <a href="post_template.html?id=${post.id}">${post.title}</a>
+                </h3>
+                <p class="post-excerpt">${post.excerpt}</p>
+                <a href="post_template.html?id=${post.id}" class="read-more">더 읽기 →</a>
+            </div>
+        `;
 
-            const postHtml = await postResponse.text();
-            
-            // 포스트 카드 생성
-            const article = document.createElement('article');
-            article.className = 'post-card';
-            article.innerHTML = postHtml;
+        // 애니메이션 적용
+        article.style.opacity = '0';
+        article.style.transform = 'translateY(20px)';
+        observer.observe(article);
 
-            // 애니메이션 적용
-            article.style.opacity = '0';
-            article.style.transform = 'translateY(20px)';
-            observer.observe(article);
-
-            postsContainer.appendChild(article);
-        } catch (error) {
-            console.error(`포스트 ${post.file} 로드 실패:`, error);
-        }
+        postsContainer.appendChild(article);
     }
 
     // 페이지네이션 업데이트
@@ -289,7 +208,6 @@ function updatePagination() {
     if (!paginationContainer) return;
 
     // 필터링된 포스트 또는 전체 포스트 사용
-    // 검색어가 있으면 검색 결과 사용, 카테고리가 선택되어 있으면 카테고리 필터 결과 사용, 아니면 전체 포스트 사용
     let postsToDisplay = allPosts;
     if (searchTerm) {
         postsToDisplay = filteredPosts;
@@ -312,13 +230,56 @@ function updatePagination() {
         paginationHTML += `<span class="pagination-btn disabled">이전</span>`;
     }
 
-    // 페이지 번호 버튼 (최대 3페이지)
-    for (let i = 1; i <= Math.min(totalPages, 3); i++) {
+    // 페이지 번호 버튼 생성
+    const maxVisible = 5; // 최대 표시할 페이지 버튼 수
+    let startPage, endPage;
+    
+    if (totalPages <= maxVisible) {
+        // 전체 페이지가 maxVisible 이하면 모두 표시
+        startPage = 1;
+        endPage = totalPages;
+    } else {
+        // 현재 페이지를 중심으로 표시
+        const half = 2//Math.floor(maxVisible / 2);
+        
+        if (currentPage <= half + 1) {
+            // 앞쪽에 있을 때
+            startPage = 1;
+            endPage = maxVisible;
+        } else if (currentPage >= totalPages - half) {
+            // 뒤쪽에 있을 때
+            startPage = totalPages - maxVisible + 1;
+            endPage = totalPages;
+        } else {
+            // 중간에 있을 때
+            startPage = currentPage - half;
+            endPage = currentPage + half;
+        }
+    }
+    
+    // 첫 페이지와 ... 표시
+    if (startPage > 1) {
+        paginationHTML += `<a href="#" class="pagination-btn" data-page="1">1</a>`;
+        if (startPage > 2) {
+            paginationHTML += `<span class="pagination-ellipsis">...</span>`;
+        }
+    }
+    
+    // 페이지 번호 버튼
+    for (let i = startPage; i <= endPage; i++) {
         if (i === currentPage) {
             paginationHTML += `<a href="#" class="pagination-btn active" data-page="${i}">${i}</a>`;
         } else {
             paginationHTML += `<a href="#" class="pagination-btn" data-page="${i}">${i}</a>`;
         }
+    }
+    
+    // 마지막 페이지와 ... 표시
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            paginationHTML += `<span class="pagination-ellipsis">...</span>`;
+        }
+        paginationHTML += `<a href="#" class="pagination-btn" data-page="${totalPages}">${totalPages}</a>`;
     }
 
     // 다음 버튼
@@ -360,7 +321,7 @@ function loadRecentPosts() {
         const dateFormatted = post.date.replace(/년 |월 |일/g, '.').replace(/\.$/, '');
         
         li.innerHTML = `
-            <a href="${post.file}">
+            <a href="post_template.html?id=${post.id}">
                 <span class="recent-post-title">${post.title}</span>
                 <span class="recent-post-date">${dateFormatted}</span>
             </a>
@@ -420,7 +381,6 @@ function loadCategories() {
             e.preventDefault();
             const category = link.getAttribute('data-category');
             if (category === 'all') {
-                // 전체 보기 클릭 시 필터 해제
                 filterByCategory(null);
             } else {
                 filterByCategory(category);
@@ -432,11 +392,9 @@ function loadCategories() {
 // 카테고리로 필터링
 function filterByCategory(category) {
     if (category === null) {
-        // 전체 보기
         selectedCategory = null;
         filteredPosts = [];
     } else if (selectedCategory === category) {
-        // 같은 카테고리를 다시 클릭하면 전체 보기로
         selectedCategory = null;
         filteredPosts = [];
     } else {
@@ -444,24 +402,23 @@ function filterByCategory(category) {
         filteredPosts = allPosts.filter(post => post.category === category);
     }
 
-    searchTerm = ''; // 카테고리 선택 시 검색어 초기화
-    // 검색 입력 필드도 초기화
+    searchTerm = '';
     const searchInput = document.querySelector('.search-input');
     if (searchInput) {
         searchInput.value = '';
     }
     
-    // 카테고리 리스트 업데이트 (활성 상태 변경)
     loadCategories();
-    
-    // 첫 페이지로 이동하여 필터링된 포스트 표시
     displayPosts(1);
 }
 
 // 페이지 로드 시 초기화
 window.addEventListener('DOMContentLoaded', async () => {
-    await loadPostsData();
-    await displayPosts(1);
-    loadRecentPosts();
-    loadCategories();
+    // 메인 페이지인 경우에만 실행
+    if (document.getElementById('postsContainer')) {
+        await loadPostsData();
+        await displayPosts(1);
+        loadRecentPosts();
+        loadCategories();
+    }
 });
