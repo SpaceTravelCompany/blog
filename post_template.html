@@ -109,16 +109,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const postId = urlParams.get('id');
 
-        // marked 설정 - Prism.js와 연동
-        marked.setOptions({
-            highlight: function(code, lang) {
-                if (Prism.languages[lang]) {
-                    return Prism.highlight(code, Prism.languages[lang], lang);
-                }
-                return code;
-            },
-            langPrefix: 'language-'
-        });
+        // marked 설정 (코드 하이라이팅은 렌더링 후 Prism.highlightAll()로 처리)
 
         // posts.json에서 카테고리, 날짜 정보 가져오기
         async function getPostMeta(id) {

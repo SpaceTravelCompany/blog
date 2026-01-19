@@ -52,28 +52,38 @@ if (header) {
     });
 }
 
-// 부드러운 스크롤
+// 부드러운 스크롤 (유효한 앵커 링크만 처리)
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
+        const href = this.getAttribute('href');
+        // '#'만 있거나 빈 문자열인 경우 무시
+        if (!href || href === '#') {
+            return;
+        }
         
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
+        try {
+            const target = document.querySelector(href);
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        } catch (error) {
+            // 유효하지 않은 셀렉터인 경우 무시
         }
     });
 });
 
 // 페이지 로드 시 페이드인 애니메이션
+// 즉시 실행하여 초기 상태 설정 (깜빡임 방지)
+document.body.style.opacity = '0';
+document.body.style.transition = 'opacity 0.5s ease';
+
+// 모든 리소스 로드 후 페이드인 (콘텐츠 로딩 완료 후)
 window.addEventListener('load', () => {
-    document.body.style.opacity = '0';
-    setTimeout(() => {
-        document.body.style.transition = 'opacity 0.5s ease';
-        document.body.style.opacity = '1';
-    }, 100);
+    document.body.style.opacity = '1';
 });
 
 // ========================================

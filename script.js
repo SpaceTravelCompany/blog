@@ -173,14 +173,22 @@ async function displayPosts(page) {
     // 검색 결과가 없을 때 메시지 표시
     if (postsToDisplay.length === 0) {
         if (searchTerm) {
-            postsContainer.innerHTML = `
-                <div class="no-posts">
-                    <p>검색 결과가 없습니다.</p>
-                    <p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">
-                        "<strong>${searchTerm}</strong>"에 대한 검색 결과를 찾을 수 없습니다.
-                    </p>
-                </div>
-            `;
+            // XSS 방지를 위해 텍스트 노드로 삽입
+            const noPostsDiv = document.createElement('div');
+            noPostsDiv.className = 'no-posts';
+            
+            const p1 = document.createElement('p');
+            p1.textContent = '검색 결과가 없습니다.';
+            
+            const p2 = document.createElement('p');
+            p2.style.cssText = 'margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;';
+            p2.innerHTML = '"<strong></strong>"에 대한 검색 결과를 찾을 수 없습니다.';
+            p2.querySelector('strong').textContent = searchTerm;
+            
+            noPostsDiv.appendChild(p1);
+            noPostsDiv.appendChild(p2);
+            postsContainer.innerHTML = '';
+            postsContainer.appendChild(noPostsDiv);
         } else {
             postsContainer.innerHTML = '<div class="no-posts">포스트가 없습니다.</div>';
         }
@@ -194,6 +202,9 @@ async function displayPosts(page) {
     // 현재 페이지에 표시할 포스트만 로드 (lazy loading)
     const postIds = postsToShow.map(p => p.id);
     const loadedPostDetails = await loadPostDetails(postIds);
+    
+    // 이전에 관찰 중인 요소들 해제
+    observer.disconnect();
     
     postsContainer.innerHTML = '';
 
@@ -366,7 +377,8 @@ async function loadRecentPosts() {
     recentPosts.forEach(post => {
         if (!post) return;
         const li = document.createElement('li');
-        const dateFormatted = post.date.replace(/년 |월 |일/g, '.').replace(/\.$/, '');
+        // 날짜 형식 변환: "2024-01-15 09:30" -> "2024.01.15"
+        const dateFormatted = post.date.split(' ')[0].replace(/-/g, '.');
         
         li.innerHTML = `
             <a href="post_template.html?id=${post.id}">
