@@ -2,7 +2,7 @@
 // 메인 페이지 전용 스크립트 (index.html)
 // ========================================
 
-// 검색 기능
+// 검색 기능 (제목만 검색)
 function searchPosts(term) {
     searchTerm = term.trim().toLowerCase();
     
@@ -15,13 +15,10 @@ function searchPosts(term) {
         return;
     }
     
-    // 제목, 요약, 카테고리에서 검색
+    // 제목에서만 검색 (posts.json에서 이미 로드된 정보 사용)
     filteredPosts = allPosts.filter(post => {
-        const titleMatch = post.title.toLowerCase().includes(searchTerm);
-        const excerptMatch = (post.excerpt || '').toLowerCase().includes(searchTerm);
-        const categoryMatch = (post.category || '').toLowerCase().includes(searchTerm);
-        
-        return titleMatch || excerptMatch || categoryMatch;
+        const titleMatch = (post.title || '').toLowerCase().includes(searchTerm);
+        return titleMatch;
     });
     
     // 검색 결과 표시
@@ -66,52 +63,92 @@ const observer = new IntersectionObserver((entries) => {
 }, observerOptions);
 
 // 전역 변수
-let allPosts = [];
+let allPosts = [];  // 기본 정보만 (id, category)
+let loadedPosts = {};  // 로드된 포스트 캐시 (id -> 상세 정보)
 let filteredPosts = [];
 let currentPage = 1;
 const postsPerPage = 5;
 let totalPages = 0;
 let selectedCategory = null;
 let searchTerm = '';
+let categoryMap = {};  // id -> category 매핑
+let dateMap = {};  // id -> date 매핑
 
-// 포스트 데이터 로드 (MD 파일에서 메타데이터 추출)
+// 포스트 기본 데이터 로드 (posts.json에서 id, 카테고리, 제목, 날짜 정보)
 async function loadPostsData() {
     try {
         const response = await fetch('posts/posts.json');
         if (!response.ok) {
             throw new Error('포스트를 불러올 수 없습니다.');
         }
-        const postIds = await response.json();
+        const data = await response.json();
         
-        // 각 MD 파일에서 메타데이터와 excerpt 추출
-        const posts = [];
-        for (const postInfo of postIds) {
-            try {
-                const mdResponse = await fetch(`posts/${postInfo.id}.md`);
-                if (!mdResponse.ok) continue;
-                
-                const content = await mdResponse.text();
-                const { metadata, body } = parseFrontmatter(content);
-                
-                posts.push({
-                    id: postInfo.id,
-                    title: metadata.title || '제목 없음',
-                    date: metadata.date || '',
-                    category: metadata.category || '기타',
-                    excerpt: extractExcerpt(body)
+        // category_posts에서 카테고리, 날짜 매핑 생성
+        const categoryPosts = data.find(item => item.category_posts)?.category_posts || [];
+        categoryMap = {};
+        dateMap = {};
+        const postIds = [];
+        
+        categoryPosts.forEach(cat => {
+            cat.posts.forEach(post => {
+                categoryMap[post.id] = cat.category;
+                dateMap[post.id] = post.date || '';
+                postIds.push({ 
+                    id: post.id, 
+                    category: cat.category, 
+                    title: post.title || '',
+                    date: post.date || ''
                 });
-            } catch (error) {
-                console.error(`포스트 ${postInfo.id} 로드 실패:`, error);
-            }
-        }
+            });
+        });
         
-        allPosts = posts;
+        // date 기준 정렬 (최신순 = 날짜 내림차순)
+        postIds.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        allPosts = postIds;
         totalPages = Math.ceil(allPosts.length / postsPerPage);
         return allPosts;
     } catch (error) {
         console.error('포스트 데이터 로드 오류:', error);
         return [];
     }
+}
+
+// 특정 포스트의 상세 정보 로드 (lazy loading)
+async function loadPostDetail(postId) {
+    // 이미 로드된 경우 캐시에서 반환
+    if (loadedPosts[postId]) {
+        return loadedPosts[postId];
+    }
+    
+    try {
+        const mdResponse = await fetch(`posts/${postId}.md`);
+        if (!mdResponse.ok) return null;
+        
+        const content = await mdResponse.text();
+        const { metadata, body } = parseFrontmatter(content);
+        
+        const post = {
+            id: postId,
+            title: metadata.title || '제목 없음',
+            date: dateMap[postId] || '',
+            category: categoryMap[postId] || '기타',
+            excerpt: extractExcerpt(body)
+        };
+        
+        // 캐시에 저장
+        loadedPosts[postId] = post;
+        return post;
+    } catch (error) {
+        console.error(`포스트 ${postId} 로드 실패:`, error);
+        return null;
+    }
+}
+
+// 여러 포스트 동시 로드
+async function loadPostDetails(postIds) {
+    const promises = postIds.map(id => loadPostDetail(id));
+    return await Promise.all(promises);
 }
 
 // 포스트 표시 함수
@@ -155,8 +192,19 @@ async function displayPosts(page) {
         return;
     }
 
+    // 로딩 표시
+    postsContainer.innerHTML = '<div class="loading-message">포스트를 불러오는 중...</div>';
+
+    // 현재 페이지에 표시할 포스트만 로드 (lazy loading)
+    const postIds = postsToShow.map(p => p.id);
+    const loadedPostDetails = await loadPostDetails(postIds);
+    
+    postsContainer.innerHTML = '';
+
     // 각 포스트에 대해 카드 생성
-    for (const post of postsToShow) {
+    for (const post of loadedPostDetails) {
+        if (!post) continue;
+        
         const article = document.createElement('article');
         article.className = 'post-card';
         article.innerHTML = `
@@ -303,20 +351,24 @@ function updatePagination() {
 }
 
 // 최근 포스트 로드
-function loadRecentPosts() {
+async function loadRecentPosts() {
     const recentPostsContainer = document.getElementById('recentPostsContainer');
     if (!recentPostsContainer) return;
 
     // 최근 3개 포스트 가져오기
-    const recentPosts = allPosts.slice(0, 3);
-    recentPostsContainer.innerHTML = '';
-
-    if (recentPosts.length === 0) {
+    const recentPostIds = allPosts.slice(0, 3).map(p => p.id);
+    
+    if (recentPostIds.length === 0) {
         recentPostsContainer.innerHTML = '<li>포스트가 없습니다.</li>';
         return;
     }
 
+    // 최근 포스트 상세 정보 로드
+    const recentPosts = await loadPostDetails(recentPostIds);
+    recentPostsContainer.innerHTML = '';
+
     recentPosts.forEach(post => {
+        if (!post) return;
         const li = document.createElement('li');
         const dateFormatted = post.date.replace(/년 |월 |일/g, '.').replace(/\.$/, '');
         
@@ -335,7 +387,7 @@ function loadCategories() {
     const categoryList = document.getElementById('categoryList');
     if (!categoryList) return;
 
-    // 카테고리별 포스트 개수 계산
+    // 카테고리별 포스트 개수 계산 (allPosts에 이미 category 정보 있음)
     const categoryCount = {};
     allPosts.forEach(post => {
         const category = post.category || '기타';
