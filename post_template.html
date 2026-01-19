@@ -28,6 +28,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markdown.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-odin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-lua.min.js"></script>
     
     <!-- Prism.js 플러그인 -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.css" rel="stylesheet">
@@ -109,7 +110,48 @@
         const urlParams = new URLSearchParams(window.location.search);
         const postId = urlParams.get('id');
 
-        // marked 설정 (코드 하이라이팅은 렌더링 후 Prism.highlightAll()로 처리)
+        // 헤딩 텍스트를 id로 변환하는 함수
+        function slugify(text) {
+            return text
+                .toLowerCase()
+                .trim()
+                .replace(/\s+/g, '-')        // 공백을 -로
+                .replace(/[^\w\uAC00-\uD7AF-]/g, '') // 영문, 숫자, 한글, - 만 유지
+                .replace(/--+/g, '-')        // 연속 -를 하나로
+                .replace(/^-+|-+$/g, '');    // 앞뒤 - 제거
+        }
+
+        // 마크다운 렌더링 후 헤딩에 id 추가
+        function addHeadingIds(container) {
+            container.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(heading => {
+                if (!heading.id) {
+                    heading.id = slugify(heading.textContent);
+                }
+            });
+        }
+        
+        // 앵커 링크 이벤트 바인딩 함수
+        function bindAnchorLinks() {
+            document.querySelectorAll('#postBody a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (!href || href === '#') return;
+                    
+                    try {
+                        const target = document.querySelector(href);
+                        if (target) {
+                            e.preventDefault();
+                            target.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        }
+                    } catch (error) {
+                        // 유효하지 않은 셀렉터 무시
+                    }
+                });
+            });
+        }
 
         // posts.json에서 카테고리, 날짜 정보 가져오기
         async function getPostMeta(id) {
@@ -160,10 +202,17 @@
                 document.title = `${metadata.title || '포스트'} - 우주여행사 Blog`;
 
                 // 마크다운 본문을 HTML로 변환
-                document.getElementById('postBody').innerHTML = marked.parse(body);
+                const postBody = document.getElementById('postBody');
+                postBody.innerHTML = marked.parse(body);
+                
+                // 헤딩에 id 추가 (앵커 링크용)
+                addHeadingIds(postBody);
                 
                 // Prism.js로 코드 하이라이팅 적용
                 Prism.highlightAll();
+                
+                // 앵커 링크 이벤트 바인딩
+                bindAnchorLinks();
             } catch (error) {
                 console.error('포스트 로드 오류:', error);
                 document.getElementById('postBody').innerHTML = '<p>포스트를 불러오는 중 오류가 발생했습니다.</p>';
