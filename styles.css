@@ -709,13 +709,24 @@ div.code-toolbar > .toolbar > .toolbar-item > button:hover {
     margin: 3rem 0;
 }
 
-/* 이미지 */
+/* post body images */
 .post-body img {
+    display: block;
     max-width: 100%;
     height: auto;
+    margin: 1.5rem auto;
     border-radius: 8px;
-    margin: 1.5rem 0;
     box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+}
+
+.post-body p:has(> img:only-child) {
+    text-align: center;
+}
+
+.post-body p:has(> img:only-child) img {
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* 테이블 */

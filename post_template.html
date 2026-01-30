@@ -156,11 +156,11 @@
 
         const cacheBuster = `?v=${Date.now()}`;
         
-        // posts.json에서 카테고리, 날짜 정보 가져오기
+        // posts.json에서 카테고리, 날짜, 제목 가져오기 (title is from posts.json only)
         async function getPostMeta(id) {
             try {
                 const response = await fetch(`posts/posts.json${cacheBuster}`);
-                if (!response.ok) return { category: '기타', date: '' };
+                if (!response.ok) return { category: '기타', date: '', title: '' };
                 
                 const data = await response.json();
                 const categoryPosts = data.find(item => item.category_posts)?.category_posts || [];
@@ -168,12 +168,12 @@
                 for (const cat of categoryPosts) {
                     const post = cat.posts.find(p => p.id === id);
                     if (post) {
-                        return { category: cat.category, date: post.date || '' };
+                        return { category: cat.category, date: post.date || '', title: post.title || '' };
                     }
                 }
-                return { category: '기타', date: '' };
+                return { category: '기타', date: '', title: '' };
             } catch (error) {
-                return { category: '기타', date: '' };
+                return { category: '기타', date: '', title: '' };
             }
         }
 
@@ -197,16 +197,23 @@
 
                 const content = await mdResponse.text();
                 const { metadata, body } = parseFrontmatter(content);
+                const displayTitle = postMeta.title || metadata.title || '제목 없음';
 
-                // 메타데이터 표시
+                // 메타데이터 표시 (title from posts.json; document may have no frontmatter title)
                 document.getElementById('postDate').textContent = postMeta.date;
                 document.getElementById('postCategory').textContent = postMeta.category;
-                document.getElementById('postTitleHeader').textContent = metadata.title || '제목 없음';
-                document.title = `${metadata.title || '포스트'} - 우주여행사 Blog`;
+                document.getElementById('postTitleHeader').textContent = displayTitle;
+                document.title = `${displayTitle} - 우주여행사 Blog`;
 
                 // 마크다운 본문을 HTML로 변환
                 const postBody = document.getElementById('postBody');
                 postBody.innerHTML = marked.parse(body);
+                
+                // lazy load images
+                postBody.querySelectorAll('img').forEach(img => {
+                    img.setAttribute('loading', 'lazy');
+                    img.setAttribute('decoding', 'async');
+                });
                 
                 // 헤딩에 id 추가 (앵커 링크용)
                 addHeadingIds(postBody);

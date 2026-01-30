@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 import json
 import shutil
-import re
 from datetime import datetime
 from pathlib import Path
 
@@ -14,12 +13,22 @@ class PostAdder:
         self.root.resizable(False, False)
         
         self.selected_file = None
-        self.extracted_title = None
         
         self.setup_ui()
         
+    def get_categories_from_json(self):
+        """Read category list from posts.json"""
+        try:
+            data = self.load_posts_json()
+            for item in data:
+                if "category_posts" in item:
+                    return [cat["category"] for cat in item["category_posts"]]
+        except Exception:
+            pass
+        return ["기술"]
+        
     def setup_ui(self):
-        # 파일 선택 영역
+        # file selection
         file_frame = ttk.LabelFrame(self.root, text="마크다운 파일", padding=10)
         file_frame.pack(fill="x", padx=10, pady=10)
         
@@ -28,23 +37,24 @@ class PostAdder:
         
         ttk.Button(file_frame, text="파일 찾기", command=self.browse_file).pack(pady=5)
         
-        # 제목 표시 영역
-        title_frame = ttk.LabelFrame(self.root, text="추출된 제목", padding=10)
+        # title (user input)
+        title_frame = ttk.LabelFrame(self.root, text="제목", padding=10)
         title_frame.pack(fill="x", padx=10, pady=10)
         
         self.title_var = tk.StringVar()
         self.title_entry = ttk.Entry(title_frame, textvariable=self.title_var, width=60)
         self.title_entry.pack(fill="x", pady=5)
         
-        # 카테고리 선택 영역
+        # category (from posts.json)
         category_frame = ttk.LabelFrame(self.root, text="카테고리", padding=10)
         category_frame.pack(fill="x", padx=10, pady=10)
         
         self.category_var = tk.StringVar()
-        self.categories = ["기술", "디자인", "생활"]
+        self.categories = self.get_categories_from_json()
         self.category_combo = ttk.Combobox(category_frame, textvariable=self.category_var, 
                                            values=self.categories, state="readonly", width=20)
-        self.category_combo.set("기술")
+        if self.categories:
+            self.category_combo.set(self.categories[0])
         self.category_combo.pack(pady=5)
         
         # 정보 표시 영역
@@ -69,18 +79,7 @@ class PostAdder:
         if file_path:
             self.selected_file = file_path
             self.file_label.config(text=file_path)
-            self.extract_title()
             self.update_id()
-            
-    def extract_title(self):
-        """파일 이름에서 title 추출"""
-        if not self.selected_file:
-            return
-            
-        # 파일 이름에서 확장자 제거하여 제목으로 사용
-        file_name = Path(self.selected_file).stem  # 확장자 제외한 파일명
-        self.extracted_title = file_name
-        self.title_var.set(self.extracted_title)
             
     def get_posts_json_path(self):
         return Path(__file__).parent / "posts" / "posts.json"
@@ -159,16 +158,9 @@ class PostAdder:
             # posts.json 저장
             self.save_posts_json(data)
             
-            # 파일 복사 (title frontmatter 추가)
+            # copy file as-is (no title frontmatter; title only in posts.json)
             dest_path = self.get_posts_folder() / f"{new_id}.md"
-            with open(self.selected_file, 'r', encoding='utf-8') as f:
-                content = f.read()
-            
-            # title frontmatter 추가
-            new_content = f"---\ntitle: {title}\n---\n\n{content}"
-            
-            with open(dest_path, 'w', encoding='utf-8') as f:
-                f.write(new_content)
+            shutil.copy2(self.selected_file, dest_path)
             
             messagebox.showinfo("성공", 
                 f"포스트가 추가되었습니다!\n\n"

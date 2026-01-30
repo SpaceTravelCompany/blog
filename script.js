@@ -124,10 +124,11 @@ async function loadPostDetail(postId) {
         
         const content = await mdResponse.text();
         const { metadata, body } = parseFrontmatter(content);
+        const title = postInfo?.title || metadata.title || '제목 없음';
         
         const post = {
             id: postId,
-            title: metadata.title || '제목 없음',
+            title,
             date: postInfo?.date || '',
             category: postInfo?.category || '기타',
             excerpt: extractExcerpt(body)
