@@ -32,11 +32,17 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
+      - name: Prepare site (exclude Python and dev files)
+        run: |
+          mkdir _site
+          cp index.html post_template.html favicon.ico styles.css script.js common.js _site/
+          cp -r posts _site/
+          [ -d images ] && cp -r images _site/ || true
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # 루트 디렉토리 전체를 업로드
-          path: '.'
+          path: '_site'
 
   # 배포 작업
   deploy:

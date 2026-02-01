@@ -1,13 +1,18 @@
 [
 	{
-		"all_posts_count": 1
+		"all_posts_count": 2
 	},
 	{
 		"category_posts": [
 			{
 				"category": "기술",
-				"count": 1,
+				"count": 2,
 				"posts": [
+					{
+						"id": "2",
+						"title": "WebGL 2, OpenGL 4.6 차이점",
+						"date": "2026-02-01 16:28"
+					},
 					{
 						"id": "1",
 						"title": "Odin Game Engine 구조",
