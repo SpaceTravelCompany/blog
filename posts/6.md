@@ -1,0 +1,944 @@
+## 목차
+1. [기본 문법](#기본-문법)
+2. [데이터 타입](#데이터-타입)
+3. [변수](#변수)
+4. [연산자](#연산자)
+5. [제어문](#제어문)
+6. [함수](#함수)
+7. [테이블](#테이블)
+8. [문자열](#문자열)
+9. [모듈](#모듈)
+10. [메타테이블](#메타테이블)
+11. [코루틴](#코루틴)
+12. [Lua 스택](#lua-스택)
+13. [Odin 연동](#odin-연동)
+
+---
+
+## 기본 문법
+
+### 주석
+```lua
+-- 한 줄 주석
+
+--[[
+    여러 줄 주석
+    블록 주석
+]]
+```
+
+### 세미콜론
+```lua
+-- 세미콜론은 선택사항 (보통 생략)
+x = 10
+y = 20
+
+-- 한 줄에 여러 문장 작성 시 사용
+x = 10; y = 20
+```
+
+---
+
+## 데이터 타입
+
+Lua는 8가지 기본 타입을 가짐:
+
+| 타입 | 설명 | 예시 |
+|------|------|------|
+| `nil` | 값 없음, 변수 삭제 | `nil` |
+| `boolean` | 참/거짓 | `true`, `false` |
+| `number` | 숫자 (정수, 실수 모두) | `42`, `3.14`, `1e10` |
+| `string` | 문자열 | `"hello"`, `'world'` |
+| `function` | 함수 | `function() end` |
+| `table` | 테이블 (배열, 딕셔너리) | `{1, 2, 3}` |
+| `userdata` | C 데이터 | (호스트에서 제공) |
+| `thread` | 코루틴 | `coroutine.create()` |
+
+### 타입 확인
+```lua
+print(type(nil))        -- nil
+print(type(true))       -- boolean
+print(type(42))         -- number
+print(type("hello"))    -- string
+print(type({}))         -- table
+print(type(print))      -- function
+```
+
+---
+
+## 변수
+
+### 전역 변수
+```lua
+-- 기본적으로 모든 변수는 전역
+name = "player"
+score = 100
+```
+
+### 지역 변수
+```lua
+-- local 키워드로 지역 변수 선언
+local x = 10
+local name = "local_player"
+
+-- 여러 변수 동시 선언
+local a, b, c = 1, 2, 3
+
+-- 값 교환
+a, b = b, a
+```
+
+### nil로 변수 삭제
+```lua
+myVar = "exists"
+myVar = nil  -- 변수 삭제
+```
+
+---
+
+## 연산자
+
+### 산술 연산자
+```lua
+a + b   -- 덧셈
+a - b   -- 뺄셈
+a * b   -- 곱셈
+a / b   -- 나눗셈
+a % b   -- 나머지
+a ^ b   -- 거듭제곱
+-a      -- 부호 반전
+a // b  -- 정수 나눗셈 (Lua 5.3+)
+```
+
+### 비교 연산자
+```lua
+a == b  -- 같음
+a ~= b  -- 다름 (!=가 아님!)
+a < b   -- 작음
+a > b   -- 큼
+a <= b  -- 작거나 같음
+a >= b  -- 크거나 같음
+```
+
+### 논리 연산자
+```lua
+and     -- 논리 AND
+or      -- 논리 OR
+not     -- 논리 NOT
+
+-- 예시
+if a > 0 and b > 0 then
+    print("둘 다 양수")
+end
+
+-- 단축 평가 (short-circuit)
+x = a or b      -- a가 falsy면 b 반환
+x = a and b     -- a가 truthy면 b 반환
+```
+
+### 문자열 연결
+```lua
+"Hello" .. " " .. "World"  -- "Hello World"
+
+-- 숫자도 자동 변환
+"Score: " .. 100  -- "Score: 100"
+```
+
+### 길이 연산자
+```lua
+#"hello"        -- 5 (문자열 길이)
+#{1, 2, 3, 4}   -- 4 (테이블 길이)
+```
+
+---
+
+## 제어문
+
+### if-then-else
+```lua
+local score = 85
+
+if score >= 90 then
+    print("A")
+elseif score >= 80 then
+    print("B")
+elseif score >= 70 then
+    print("C")
+else
+    print("F")
+end
+```
+
+### while 루프
+```lua
+local i = 1
+while i <= 5 do
+    print(i)
+    i = i + 1
+end
+```
+
+### repeat-until 루프
+```lua
+local i = 1
+repeat
+    print(i)
+    i = i + 1
+until i > 5
+```
+
+### for 루프 (숫자)
+```lua
+-- for 변수 = 시작, 끝, 증가값 do
+for i = 1, 5 do
+    print(i)  -- 1, 2, 3, 4, 5
+end
+
+for i = 10, 1, -1 do
+    print(i)  -- 10, 9, 8, ... 1
+end
+
+for i = 0, 10, 2 do
+    print(i)  -- 0, 2, 4, 6, 8, 10
+end
+```
+
+### for-in 루프 (제네릭)
+```lua
+-- 배열 순회
+local fruits = {"apple", "banana", "cherry"}
+for index, value in ipairs(fruits) do
+    print(index, value)
+end
+
+-- 테이블 순회
+local player = {name = "Hero", hp = 100, mp = 50}
+for key, value in pairs(player) do
+    print(key, value)
+end
+```
+
+### break
+```lua
+for i = 1, 100 do
+    if i > 10 then
+        break  -- 루프 탈출
+    end
+    print(i)
+end
+```
+
+### goto (Lua 5.2+)
+```lua
+for i = 1, 10 do
+    if i == 5 then
+        goto continue  -- continue 구현
+    end
+    print(i)
+    ::continue::
+end
+```
+
+---
+
+## 함수
+
+### 기본 함수 정의
+```lua
+function greet(name)
+    print("Hello, " .. name .. "!")
+end
+
+greet("Player")  -- Hello, Player!
+```
+
+### 지역 함수
+```lua
+local function add(a, b)
+    return a + b
+end
+```
+
+### 익명 함수
+```lua
+local multiply = function(a, b)
+    return a * b
+end
+
+print(multiply(3, 4))  -- 12
+```
+
+### 다중 반환값
+```lua
+function getMinMax(a, b)
+    if a < b then
+        return a, b
+    else
+        return b, a
+    end
+end
+
+local min, max = getMinMax(10, 5)
+print(min, max)  -- 5, 10
+```
+
+### 가변 인자
+```lua
+function sum(...)
+    local args = {...}
+    local total = 0
+    for _, v in ipairs(args) do
+        total = total + v
+    end
+    return total
+end
+
+print(sum(1, 2, 3, 4, 5))  -- 15
+```
+
+### 기본 매개변수
+```lua
+function greet(name, greeting)
+    greeting = greeting or "Hello"
+    print(greeting .. ", " .. name)
+end
+
+greet("Player")           -- Hello, Player
+greet("Player", "Hi")     -- Hi, Player
+```
+
+### 클로저
+```lua
+function counter()
+    local count = 0
+    return function()
+        count = count + 1
+        return count
+    end
+end
+
+local c = counter()
+print(c())  -- 1
+print(c())  -- 2
+print(c())  -- 3
+```
+
+---
+
+## 테이블
+
+Lua의 유일한 복합 데이터 구조. 배열, 딕셔너리, 객체 등 모든 것을 표현.
+
+### 배열 (순차 테이블)
+```lua
+-- 인덱스는 1부터 시작!
+local fruits = {"apple", "banana", "cherry"}
+
+print(fruits[1])  -- apple
+print(fruits[2])  -- banana
+print(#fruits)    -- 3 (길이)
+
+-- 요소 추가
+table.insert(fruits, "orange")
+fruits[#fruits + 1] = "grape"
+
+-- 요소 제거
+table.remove(fruits, 2)  -- banana 제거
+```
+
+### 딕셔너리 (연관 테이블)
+```lua
+local player = {
+    name = "Hero",
+    hp = 100,
+    mp = 50,
+    level = 1
+}
+
+-- 접근 방법 1: 점 표기법
+print(player.name)  -- Hero
+
+-- 접근 방법 2: 대괄호 표기법
+print(player["hp"])  -- 100
+
+-- 동적 키 접근
+local key = "mp"
+print(player[key])  -- 50
+
+-- 값 수정
+player.hp = 80
+player["level"] = 2
+
+-- 키 삭제
+player.mp = nil
+```
+
+### 혼합 테이블
+```lua
+local mixed = {
+    "first",           -- [1] = "first"
+    "second",          -- [2] = "second"
+    name = "mixed",    -- ["name"] = "mixed"
+    [10] = "ten"       -- 명시적 인덱스
+}
+```
+
+### 중첩 테이블
+```lua
+local game = {
+    player = {
+        name = "Hero",
+        stats = {
+            hp = 100,
+            mp = 50
+        }
+    },
+    enemies = {
+        {name = "Goblin", hp = 30},
+        {name = "Orc", hp = 50}
+    }
+}
+
+print(game.player.stats.hp)  -- 100
+print(game.enemies[1].name)  -- Goblin
+```
+
+### 테이블 함수
+```lua
+local t = {3, 1, 4, 1, 5, 9}
+
+-- 정렬
+table.sort(t)  -- {1, 1, 3, 4, 5, 9}
+
+-- 커스텀 정렬
+table.sort(t, function(a, b) return a > b end)  -- 내림차순
+
+-- 삽입/제거
+table.insert(t, 2, 100)  -- 인덱스 2에 100 삽입
+table.remove(t, 1)       -- 인덱스 1 제거
+
+-- 연결 (배열을 문자열로)
+local words = {"Hello", "World"}
+print(table.concat(words, " "))  -- "Hello World"
+```
+
+---
+
+## 문자열
+
+### 문자열 정의
+```lua
+local s1 = "Hello"
+local s2 = 'World'
+local s3 = [[
+여러 줄
+문자열
+]]
+
+-- 이스케이프 시퀀스
+local escaped = "Tab:\tNewline:\n"
+```
+
+### 문자열 함수
+```lua
+local s = "Hello, World!"
+
+-- 길이
+print(#s)                    -- 13
+print(string.len(s))         -- 13
+
+-- 대소문자 변환
+print(string.upper(s))       -- HELLO, WORLD!
+print(string.lower(s))       -- hello, world!
+
+-- 부분 문자열
+print(string.sub(s, 1, 5))   -- Hello
+print(string.sub(s, -6))     -- World!
+
+-- 찾기
+print(string.find(s, "World"))  -- 8, 12 (시작, 끝 위치)
+
+-- 치환
+print(string.gsub(s, "World", "Lua"))  -- Hello, Lua!
+
+-- 반복
+print(string.rep("ab", 3))   -- ababab
+
+-- 뒤집기
+print(string.reverse(s))     -- !dlroW ,olleH
+
+-- 포맷
+print(string.format("Name: %s, Score: %d", "Player", 100))
+-- Name: Player, Score: 100
+
+-- 바이트/문자
+print(string.byte("A"))      -- 65
+print(string.char(65))       -- A
+```
+
+### 패턴 매칭
+```lua
+-- Lua는 정규식 대신 패턴 사용
+-- %d: 숫자, %a: 알파벳, %s: 공백, %w: 알파벳+숫자
+
+local s = "Score: 100 points"
+
+-- match: 패턴에 맞는 부분 반환
+print(string.match(s, "%d+"))  -- 100
+
+-- gmatch: 반복자 반환
+for word in string.gmatch(s, "%a+") do
+    print(word)  -- Score, points
+end
+
+-- gsub: 치환
+print(string.gsub(s, "%d+", "200"))  -- Score: 200 points
+```
+
+---
+
+## 모듈
+
+### 모듈 생성 (mymodule.lua)
+```lua
+local M = {}
+
+M.version = "1.0"
+
+function M.greet(name)
+    print("Hello, " .. name)
+end
+
+function M.add(a, b)
+    return a + b
+end
+
+return M
+```
+
+### 모듈 사용
+```lua
+local mymodule = require("mymodule")
+
+print(mymodule.version)     -- 1.0
+mymodule.greet("Player")    -- Hello, Player
+print(mymodule.add(1, 2))   -- 3
+```
+
+---
+
+## 메타테이블
+
+메타테이블로 테이블의 동작을 커스터마이즈.
+
+### 기본 사용
+```lua
+local t = {value = 10}
+local mt = {}
+
+setmetatable(t, mt)
+print(getmetatable(t) == mt)  -- true
+```
+
+### __index: 없는 키 접근 시
+```lua
+local defaults = {hp = 100, mp = 50}
+local player = {name = "Hero"}
+
+setmetatable(player, {__index = defaults})
+
+print(player.name)  -- Hero
+print(player.hp)    -- 100 (defaults에서 가져옴)
+```
+
+### __newindex: 새 키 할당 시
+```lua
+local t = {}
+local mt = {
+    __newindex = function(table, key, value)
+        print("Setting " .. key .. " = " .. value)
+        rawset(table, key, value)
+    end
+}
+setmetatable(t, mt)
+
+t.x = 10  -- "Setting x = 10" 출력
+```
+
+### __add, __sub 등: 연산자 오버로딩
+```lua
+local Vector = {}
+Vector.__index = Vector
+
+function Vector.new(x, y)
+    return setmetatable({x = x, y = y}, Vector)
+end
+
+function Vector.__add(a, b)
+    return Vector.new(a.x + b.x, a.y + b.y)
+end
+
+function Vector.__tostring(v)
+    return string.format("(%d, %d)", v.x, v.y)
+end
+
+local v1 = Vector.new(1, 2)
+local v2 = Vector.new(3, 4)
+local v3 = v1 + v2
+
+print(v3)  -- (4, 6)
+```
+
+### 주요 메타메서드
+| 메타메서드 | 호출 시점 |
+|-----------|----------|
+| `__index` | 없는 키 접근 |
+| `__newindex` | 새 키 할당 |
+| `__add` | + 연산 |
+| `__sub` | - 연산 |
+| `__mul` | * 연산 |
+| `__div` | / 연산 |
+| `__eq` | == 비교 |
+| `__lt` | < 비교 |
+| `__le` | <= 비교 |
+| `__tostring` | tostring() 호출 |
+| `__call` | 테이블을 함수처럼 호출 |
+| `__len` | # 연산자 |
+
+---
+
+## 코루틴
+
+협력적 멀티태스킹을 위한 코루틴.
+
+### 기본 사용
+```lua
+local co = coroutine.create(function()
+    for i = 1, 3 do
+        print("코루틴:", i)
+        coroutine.yield()
+    end
+end)
+
+print(coroutine.status(co))  -- suspended
+
+coroutine.resume(co)  -- 코루틴: 1
+coroutine.resume(co)  -- 코루틴: 2
+coroutine.resume(co)  -- 코루틴: 3
+coroutine.resume(co)  -- (아무것도 안 함)
+
+print(coroutine.status(co))  -- dead
+```
+
+### 값 주고받기
+```lua
+local co = coroutine.create(function(a)
+    local b = coroutine.yield(a + 1)
+    local c = coroutine.yield(b + 1)
+    return c + 1
+end)
+
+local ok, result = coroutine.resume(co, 10)
+print(result)  -- 11
+
+ok, result = coroutine.resume(co, 20)
+print(result)  -- 21
+
+ok, result = coroutine.resume(co, 30)
+print(result)  -- 31
+```
+
+### wrap 사용
+```lua
+local counter = coroutine.wrap(function()
+    local i = 0
+    while true do
+        i = i + 1
+        coroutine.yield(i)
+    end
+end)
+
+print(counter())  -- 1
+print(counter())  -- 2
+print(counter())  -- 3
+```
+
+---
+
+## Lua 스택
+
+Lua C API는 **스택 기반**으로 동작합니다. Lua와 호스트(Odin/C) 사이의 모든 값 교환은 가상 스택을 통해 이루어집니다.
+
+### 스택 기본 개념
+
+```
+인덱스:  양수 (아래→위)    음수 (위→아래)
+        ┌─────────┐
+     4  │  값 D   │  -1 (최상단)
+        ├─────────┤
+     3  │  값 C   │  -2
+        ├─────────┤
+     2  │  값 B   │  -3
+        ├─────────┤
+     1  │  값 A   │  -4 (최하단)
+        └─────────┘
+```
+
+- **양수 인덱스**: 스택 바닥부터 (1, 2, 3...)
+- **음수 인덱스**: 스택 꼭대기부터 (-1, -2, -3...)
+- `-1`은 항상 스택 최상단 값
+
+### 주요 스택 조작 함수
+
+| 함수 | 동작 |
+|------|------|
+| `lua_push*()` | 스택에 값 추가 (push) |
+| `lua_pop(L, n)` | 스택에서 n개 제거 |
+| `lua_gettop(L)` | 스택 크기 반환 |
+| `lua_settop(L, n)` | 스택 크기를 n으로 설정 |
+| `lua_pushvalue(L, idx)` | idx 위치 값을 복사해서 push |
+| `lua_remove(L, idx)` | idx 위치 값 제거 |
+| `lua_insert(L, idx)` | 최상단 값을 idx 위치로 이동 |
+| `lua_replace(L, idx)` | 최상단 값으로 idx 위치 값 교체 |
+
+### lua_pcall 스택 동작
+
+```c
+int lua_pcall(lua_State *L, int nargs, int nresults, int errfunc);
+```
+
+| 파라미터 | 설명 |
+|---------|------|
+| `nargs` | 인자 개수 |
+| `nresults` | 기대하는 반환값 개수 (`LUA_MULTRET` = 모두) |
+| `errfunc` | 에러 핸들러 스택 인덱스 (0 = 없음) |
+
+#### 호출 전후 스택 상태
+
+```
+호출 전: [함수, arg1, arg2, ..., argN]  ← nargs개 인자
+         ↓
+성공 시: [ret1, ret2, ..., retM]        ← nresults개 반환값
+실패 시: [error_message]                 ← 에러 메시지 1개
+```
+
+**핵심**: `lua_pcall`은 함수와 인자를 **자동으로 pop**하고, 결과를 push합니다.
+
+### 예시: 반환값 없는 함수 호출 (nresults=0)
+
+```
+lua_getglobal(L, "play_card")  → 스택: [play_card]
+lua_pushinteger(L, 1)          → 스택: [play_card, 1]
+lua_pushinteger(L, 2)          → 스택: [play_card, 1, 2]
+
+-- lua_pcall(L, 2, 0, 0) 호출
+-- 성공: 함수+인자 pop, 반환값 0개 push
+성공 후 스택: []               ← 정리 불필요!
+
+-- 실패: 함수+인자 pop, 에러 메시지 1개 push  
+실패 후 스택: [error_msg]      ← lua_pop(L, 1) 필요
+```
+
+### 예시: 반환값 있는 함수 호출 (nresults=1)
+
+```
+lua_getglobal(L, "get_score")  → 스택: [get_score]
+
+-- lua_pcall(L, 0, 1, 0) 호출
+성공 후 스택: [result]         ← 사용 후 lua_pop(L, 1) 필요!
+실패 후 스택: [error_msg]      ← lua_pop(L, 1) 필요
+```
+
+### 예시: 여러 반환값 (nresults=LUA_MULTRET)
+
+```lua
+-- Lua 함수
+function get_pos()
+    return 10, 20, 30  -- x, y, z
+end
+```
+
+```
+lua_getglobal(L, "get_pos")    → 스택: [get_pos]
+lua_pcall(L, 0, LUA_MULTRET, 0)
+성공 후 스택: [10, 20, 30]     ← 3개 모두 pop 필요
+```
+
+### 스택 정리 규칙 요약
+
+| 상황 | 정리 필요 여부 |
+|------|---------------|
+| `lua_pcall` 성공, `nresults=0` | 정리 불필요 |
+| `lua_pcall` 성공, `nresults>0` | 반환값 pop 필요 |
+| `lua_pcall` 실패 | 에러 메시지 pop 필요 |
+| `lua_getglobal` 후 사용 완료 | pop 필요 |
+| `lua_push*` 후 함수에 전달 | 함수가 자동 pop |
+
+### 스택 디버깅 팁
+
+```odin
+// 현재 스택 상태 출력
+debug_stack :: proc(L: ^lua.lua_State) {
+    top := lua.lua_gettop(L)
+    fmt.println("=== Stack (size:", top, ") ===")
+    for i : c.int = 1; i <= top; i += 1 {
+        t := lua.lua_type(L, i)
+        type_name := lua.lua_typename(L, t)
+        fmt.printf("[%d] %s\n", i, type_name)
+    }
+    fmt.println("========================")
+}
+```
+
+### 흔한 실수
+
+```odin
+// ❌ 잘못된 예: 반환값을 pop하지 않음
+lua.lua_getglobal(L, "score")
+value := lua.lua_tonumber(L, -1)
+// score가 스택에 계속 쌓임!
+
+// ✅ 올바른 예
+lua.lua_getglobal(L, "score")
+value := lua.lua_tonumber(L, -1)
+lua.lua_pop(L, 1)  // 사용 후 정리
+```
+
+---
+
+## Odin 연동
+
+### Odin에서 Lua 초기화
+```odin
+import "vendor:lua"
+
+init_lua :: proc() {
+    L := lua.luaL_newstate()
+    defer lua.lua_close(L)
+    
+    lua.luaL_openlibs(L)
+}
+```
+
+### Lua 파일 실행
+```odin
+lua.luaL_dofile(L, "script.lua")
+```
+
+### Lua 문자열 실행
+```odin
+lua.luaL_dostring(L, "print('Hello from Lua!')")
+```
+
+### Odin에서 Lua 전역 변수 읽기
+```odin
+// Lua: score = 100
+lua.lua_getglobal(L, "score")
+value := lua.lua_tonumber(L, -1)
+lua.lua_pop(L, 1)
+```
+
+### Odin에서 Lua 전역 변수 쓰기
+```odin
+lua.lua_pushnumber(L, 200)
+lua.lua_setglobal(L, "score")
+```
+
+### Odin 함수를 Lua에서 호출
+```odin
+import "core:c"
+
+// C 호출 규약 함수 정의
+my_func :: proc "c" (L: ^lua.lua_State) -> c.int {
+    a := lua.lua_tonumber(L, 1)
+    b := lua.lua_tonumber(L, 2)
+    
+    lua.lua_pushnumber(L, a + b)
+    return 1  // 반환값 개수
+}
+
+// 등록
+lua.lua_register(L, "add", my_func)
+
+// Lua에서 사용: result = add(10, 20)
+```
+
+### Lua 함수를 Odin에서 호출
+```odin
+// Lua: function greet(name) return "Hello, " .. name end
+
+lua.lua_getglobal(L, "greet")           // 함수를 스택에
+lua.lua_pushstring(L, "Player")          // 인자 push
+lua.lua_pcall(L, 1, 1, 0)               // 호출 (인자 1개, 반환 1개)
+result := lua.lua_tostring(L, -1)        // 결과 읽기
+lua.lua_pop(L, 1)                        // 스택 정리
+```
+
+### Lua 테이블 다루기
+```odin
+// 테이블 생성
+lua.lua_newtable(L)
+
+// 필드 설정: t.name = "Player"
+lua.lua_pushstring(L, "Player")
+lua.lua_setfield(L, -2, "name")
+
+// 필드 설정: t.hp = 100
+lua.lua_pushnumber(L, 100)
+lua.lua_setfield(L, -2, "hp")
+
+// 전역으로 설정
+lua.lua_setglobal(L, "player")
+
+// 필드 읽기
+lua.lua_getglobal(L, "player")
+lua.lua_getfield(L, -1, "hp")
+hp := lua.lua_tonumber(L, -1)
+lua.lua_pop(L, 2)
+```
+
+---
+
+## 유용한 내장 함수
+
+```lua
+-- 출력
+print("Hello", "World")
+
+-- 타입 확인
+type(variable)
+
+-- 숫자 변환
+tonumber("123")      -- 123
+tonumber("abc")      -- nil
+
+-- 문자열 변환
+tostring(123)        -- "123"
+
+-- 에러 발생
+error("Something went wrong!")
+
+-- 보호 호출 (에러 캐치)
+local ok, result = pcall(function()
+    -- 위험한 코드
+end)
+
+-- assert
+assert(condition, "에러 메시지")
+
+-- 테이블/문자열 순회
+pairs(table)    -- 모든 키-값
+ipairs(array)   -- 순차 인덱스만
+
+-- 전역 테이블
+_G              -- 모든 전역 변수 포함
+_VERSION        -- Lua 버전 문자열
+```
+
+---
+
+## 참고 자료
+
+- [Lua 공식 매뉴얼](https://www.lua.org/manual/5.5/)
+- [Lua 튜토리얼](https://www.lua.org/pil/)
+- [한글 번역본](https://wariua.github.io/lua-manual/5.4/)

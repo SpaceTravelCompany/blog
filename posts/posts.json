@@ -1,13 +1,18 @@
 [
 	{
-		"all_posts_count": 5
+		"all_posts_count": 6
 	},
 	{
 		"category_posts": [
 			{
 				"category": "기술",
-				"count": 5,
+				"count": 6,
 				"posts": [
+					{
+						"id": "6",
+						"title": "Lua 가이드",
+						"date": "2026-02-05 03:34"
+					},
 					{
 						"id": "5",
 						"title": "O(1) Free 배열",
