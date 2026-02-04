@@ -1,13 +1,18 @@
 [
 	{
-		"all_posts_count": 4
+		"all_posts_count": 5
 	},
 	{
 		"category_posts": [
 			{
 				"category": "기술",
-				"count": 4,
+				"count": 5,
 				"posts": [
+					{
+						"id": "5",
+						"title": "O(1) Free 배열",
+						"date": "2026-02-05 02:47"
+					},
 					{
 						"id": "4",
 						"title": "Vulkan 파이프라인 베리어 — 정리",
