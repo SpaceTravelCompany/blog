@@ -1,90 +1,96 @@
 // ========================================
-// 공통 기능 (다크모드, 모바일 메뉴, 헤더 등)
+// 공통 기능 (동적 로드, 테마, 메뉴 등)
 // ========================================
 
-// 다크 모드 토글
-const themeToggle = document.getElementById('themeToggle');
-if (themeToggle) {
-    const themeIcon = themeToggle.querySelector('.theme-icon');
-
-    // 저장된 테마 불러오기
-    const currentTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', currentTheme);
-    if (themeIcon) {
-        themeIcon.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
-    }
-
-    // 테마 토글 이벤트
-    themeToggle.addEventListener('click', () => {
-        const current = document.documentElement.getAttribute('data-theme');
-        const newTheme = current === 'dark' ? 'light' : 'dark';
-        
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        if (themeIcon) {
-            themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-        }
-    });
-}
-
-// 모바일 메뉴 토글
-const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-const navMenu = document.getElementById('navMenu');
-
-if (mobileMenuToggle && navMenu) {
-    mobileMenuToggle.addEventListener('click', () => {
-        navMenu.classList.toggle('active');
-        mobileMenuToggle.classList.toggle('active');
-    });
-}
-
-// 스크롤 시 헤더 스타일 변경
-const header = document.querySelector('.header');
-if (header) {
-    window.addEventListener('scroll', () => {
-        const currentScroll = window.pageYOffset;
-        
-        if (currentScroll > 100) {
-            header.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.15)';
-        } else {
-            header.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
-        }
-    });
-}
-
-// 부드러운 스크롤 (유효한 앵커 링크만 처리)
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        const href = this.getAttribute('href');
-        // '#'만 있거나 빈 문자열인 경우 무시
-        if (!href || href === '#') {
-            return;
-        }
-        
-        try {
-            const target = document.querySelector(href);
-            if (target) {
-                e.preventDefault();
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        } catch (error) {
-            // 유효하지 않은 셀렉터인 경우 무시
-        }
-    });
-});
-
-// 페이지 로드 시 페이드인 애니메이션
-// 즉시 실행하여 초기 상태 설정 (깜빡임 방지)
 document.body.style.opacity = '0';
 document.body.style.transition = 'opacity 0.5s ease';
-
-// 모든 리소스 로드 후 페이드인 (콘텐츠 로딩 완료 후)
-window.addEventListener('load', () => {
+window.addEventListener('load', function () {
     document.body.style.opacity = '1';
 });
+
+// Smooth scroll for in-page anchors (main document, e.g. post body)
+document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
+    anchor.addEventListener('click', function (e) {
+        var href = this.getAttribute('href');
+        if (!href || href === '#') return;
+        try {
+            var target = document.querySelector(href);
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        } catch (err) {}
+    });
+});
+
+// runInit 함수: 테마 변경, 모바일 메뉴 토글, 헤더 스크롤 효과 등 UI 초기화 기능 담당
+// header/footer 완료시 실행
+function runInit() {
+    var themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+        var themeIcon = themeToggle.querySelector('.theme-icon');
+        var currentTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        if (themeIcon) {
+            themeIcon.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
+        }
+        themeToggle.addEventListener('click', function () {
+            var current = document.documentElement.getAttribute('data-theme');
+            var newTheme = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            if (themeIcon) {
+                themeIcon.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+            }
+        });
+    }
+
+    var mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    var navMenu = document.getElementById('navMenu');
+    if (mobileMenuToggle && navMenu) {
+        mobileMenuToggle.addEventListener('click', function () {
+            navMenu.classList.toggle('active');
+            mobileMenuToggle.classList.toggle('active');
+        });
+    }
+
+    var header = document.querySelector('.header');
+    if (header) {
+        window.addEventListener('scroll', function () {
+            var currentScroll = window.pageYOffset;
+            if (currentScroll > 100) {
+                header.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.15)';
+            } else {
+                header.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
+            }
+        });
+    }
+}
+
+(function () {
+    var headerPlaceholder = document.getElementById('header-placeholder');
+    var footerPlaceholder = document.getElementById('footer-placeholder');
+
+    if (!headerPlaceholder && !footerPlaceholder) return;
+
+    Promise.all([
+        headerPlaceholder ? fetch('partials/header.html').then(function (r) { return r.text(); }) : Promise.resolve(''),
+        footerPlaceholder ? fetch('partials/footer.html').then(function (r) { return r.text(); }) : Promise.resolve('')
+    ]).then(function (results) {
+        var headerHtml = results[0];
+        var footerHtml = results[1];
+        if (headerPlaceholder && headerHtml) {
+            headerPlaceholder.outerHTML = headerHtml;
+        }
+        if (footerPlaceholder && footerHtml) {
+            footerPlaceholder.outerHTML = footerHtml;
+        }
+        runInit();
+    }).catch(function (err) {
+        console.error('Layout load failed:', err);
+        runInit();
+    });
+})();
 
 // ========================================
 // 공통 유틸리티 함수
