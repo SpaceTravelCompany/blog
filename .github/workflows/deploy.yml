@@ -36,6 +36,8 @@ jobs:
         run: |
           mkdir _site
           cp index.html post_template.html favicon.ico styles.css script.js common.js _site/
+          mkdir -p _site/partials
+          cp partials/header.html partials/footer.html _site/partials/
           cp -r posts _site/
           [ -d images ] && cp -r images _site/ || true
 
