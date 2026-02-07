@@ -35,7 +35,7 @@ jobs:
       - name: Prepare site (exclude Python and dev files)
         run: |
           mkdir _site
-          cp index.html post_template.html favicon.ico styles.css script.js common.js robots.txt _site/
+          cp index.html post_template.html favicon.ico styles.css script.js common.js robots.txt googlea0b76a65c9658b52.html _site/
           mkdir -p _site/partials
           cp partials/header.html partials/footer.html _site/partials/
           cp -r posts _site/
