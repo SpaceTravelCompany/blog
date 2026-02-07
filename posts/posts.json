@@ -1,13 +1,18 @@
 [
 	{
-		"all_posts_count": 6
+		"all_posts_count": 7
 	},
 	{
 		"category_posts": [
 			{
 				"category": "기술",
-				"count": 6,
+				"count": 7,
 				"posts": [
+					{
+						"id": "7",
+						"title": "Vulkan vkCmdDraw... 함수로 그래픽이 안나올때",
+						"date": "2026-02-07 18:55"
+					},
 					{
 						"id": "6",
 						"title": "Lua 가이드",
