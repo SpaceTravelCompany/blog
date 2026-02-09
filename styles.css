@@ -775,6 +775,17 @@ div.code-toolbar > .toolbar > .toolbar-item > button:hover {
     color: var(--text-light);
 }
 
+/* KaTeX math (block display) */
+.post-body .katex-display {
+    margin: 1rem 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.post-body .katex {
+    font-size: 1.1em;
+}
+
 /* 포스트 푸터 */
 .post-footer {
     margin-top: 4rem;

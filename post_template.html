@@ -10,31 +10,19 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     
-    <!-- Prism.js 테마 (Tomorrow Night) -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <!-- Prism (local build: theme + languages + line-highlight) -->
+    <link rel="stylesheet" href="prism.css">
+    
+    <!-- KaTeX (math formulas) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/contrib/auto-render.min.js"></script>
     
     <!-- marked.js -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
-    <!-- Prism.js 코어 + 언어 지원 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markdown.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-odin.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-lua.min.js"></script>
-    
-    <!-- Prism.js 플러그인 -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
+    <!-- Prism (local: core + languages + line-highlight) -->
+    <script src="prism.js"></script>
 </head>
 <body>
     <div id="header-placeholder"></div>
@@ -165,9 +153,26 @@
                 document.getElementById('postTitleHeader').textContent = displayTitle;
                 document.title = `${displayTitle} - 우주여행사 Blog`;
 
+                // Protect \( \) so marked does not strip backslashes; restore after parse (use split/join to avoid regex escaping)
+                const PL = '%%%MATH_INLINE_OPEN%%%';
+                const PR = '%%%MATH_INLINE_CLOSE%%%';
+                const bodyForMarked = body.split('\\(').join(PL).split('\\)').join(PR);
+
                 // 마크다운 본문을 HTML로 변환
                 const postBody = document.getElementById('postBody');
-                postBody.innerHTML = marked.parse(body);
+                let html = marked.parse(bodyForMarked);
+                postBody.innerHTML = html.split(PL).join('\\(').split(PR).join('\\)');
+                
+                // KaTeX로 수식 렌더링 ($$ block, \( \) inline)
+                if (typeof renderMathInElement === 'function') {
+                    renderMathInElement(postBody, {
+                        delimiters: [
+                            { left: '$$', right: '$$', display: true },
+                            { left: '\\(', right: '\\)', display: false }
+                        ],
+                        throwOnError: false
+                    });
+                }
                 
                 // lazy load images
                 postBody.querySelectorAll('img').forEach(img => {
