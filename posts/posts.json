@@ -1,13 +1,23 @@
 [
 	{
-		"all_posts_count": 8
+		"all_posts_count": 10
 	},
 	{
 		"category_posts": [
 			{
 				"category": "기술",
-				"count": 7,
+				"count": 9,
 				"posts": [
+					{
+						"id": "10",
+						"title": "Git 사용법 정리",
+						"date": "2026-02-28 17:56"
+					},
+					{
+						"id": "9",
+						"title": "glslang 사용방법",
+						"date": "2026-02-28 17:43"
+					},
 					{
 						"id": "7",
 						"title": "Vulkan vkCmdDraw... 함수로 그래픽이 안나올때",
