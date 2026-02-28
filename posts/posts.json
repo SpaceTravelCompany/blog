@@ -1,13 +1,18 @@
 [
 	{
-		"all_posts_count": 11
+		"all_posts_count": 12
 	},
 	{
 		"category_posts": [
 			{
 				"category": "기술",
-				"count": 9,
+				"count": 10,
 				"posts": [
+					{
+						"id": "12",
+						"title": "Slang 문법 노트",
+						"date": "2026-02-28 22:17"
+					},
 					{
 						"id": "10",
 						"title": "Git 사용법 정리",
