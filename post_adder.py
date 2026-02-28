@@ -190,7 +190,7 @@ class PostAdder:
 
 def main():
     root = tk.Tk()
-    app = PostAdder(root)
+    PostAdder(root)
     root.mainloop()
 
 
