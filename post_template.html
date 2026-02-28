@@ -1,201 +1,241 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="postTitle">포스트 - 우주여행사 Blog</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-    
-    <!-- Prism (local build: theme + languages + line-highlight) -->
-    <link rel="stylesheet" href="prism.css">
-    
-    <!-- KaTeX (math formulas) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/contrib/auto-render.min.js"></script>
-    
-    <!-- marked.js -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    
-    <!-- Prism (local: core + languages + line-highlight) -->
-    <script src="prism.js"></script>
-</head>
-<body>
-    <div id="header-placeholder"></div>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title id="postTitle">포스트 - 우주여행사 Blog</title>
+        <link rel="icon" type="image/x-icon" href="favicon.ico" />
+        <link rel="stylesheet" href="styles.css" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+            rel="stylesheet"
+        />
 
-    <!-- 메인 콘텐츠 -->
-    <main class="main-content">
-        <div class="container">
-            <article class="post-detail">
-                <div class="post-header">
-                    <div class="post-meta">
-                        <span class="post-date" id="postDate"></span>
-                        <span class="post-category" id="postCategory"></span>
+        <!-- Prism (local build: theme + languages + line-highlight) -->
+        <link rel="stylesheet" href="prism.css" />
+
+        <!-- KaTeX (math formulas) -->
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css"
+        />
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/contrib/auto-render.min.js"></script>
+
+        <!-- marked.js -->
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+        <!-- Prism (local: core + languages + line-highlight) -->
+        <script src="prism.js"></script>
+    </head>
+    <body>
+        <div id="header-placeholder"></div>
+
+        <!-- 메인 콘텐츠 -->
+        <main class="main-content">
+            <div class="container">
+                <article class="post-detail">
+                    <div class="post-header">
+                        <div class="post-meta">
+                            <span class="post-date" id="postDate"></span>
+                            <span
+                                class="post-category"
+                                id="postCategory"
+                            ></span>
+                        </div>
+                        <h1 class="post-title" id="postTitleHeader"></h1>
                     </div>
-                    <h1 class="post-title" id="postTitleHeader"></h1>
-                </div>
-                <div class="post-body" id="postBody">
-                    <div class="loading-message">포스트를 불러오는 중...</div>
-                </div>
-                <div class="post-footer">
-                    <a href="index.html" class="back-to-list">← 목록으로 돌아가기</a>
-                </div>
-            </article>
-        </div>
-    </main>
+                    <div class="post-body" id="postBody">
+                        <div class="loading-message">
+                            포스트를 불러오는 중...
+                        </div>
+                    </div>
+                    <div class="post-footer">
+                        <a href="javascript:history.back()" class="back-to-list"
+                            >← 목록으로 돌아가기</a
+                        >
+                    </div>
+                </article>
+            </div>
+        </main>
 
-    <div id="footer-placeholder"></div>
+        <div id="footer-placeholder"></div>
 
-    <!-- 공통 스크립트 -->
-    <script src="common.js"></script>
-    
-    <!-- 포스트 페이지 전용 스크립트 -->
-    <script>
-        // URL에서 포스트 ID 가져오기
-        const urlParams = new URLSearchParams(window.location.search);
-        const postId = urlParams.get('id');
+        <!-- 공통 스크립트 -->
+        <script src="common.js"></script>
 
-        // 헤딩 텍스트를 id로 변환하는 함수
-        function slugify(text) {
-            return text
-                .toLowerCase()
-                .trim()
-                .replace(/\s+/g, '-')        // 공백을 -로
-                .replace(/[^\w\uAC00-\uD7AF-]/g, '') // 영문, 숫자, 한글, - 만 유지
-                .replace(/--+/g, '-')        // 연속 -를 하나로
-                .replace(/^-+|-+$/g, '');    // 앞뒤 - 제거
-        }
+        <!-- 포스트 페이지 전용 스크립트 -->
+        <script>
+            // URL에서 포스트 ID 가져오기
+            const urlParams = new URLSearchParams(window.location.search);
+            const postId = urlParams.get("id");
 
-        // 마크다운 렌더링 후 헤딩에 id 추가
-        function addHeadingIds(container) {
-            container.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(heading => {
-                if (!heading.id) {
-                    heading.id = slugify(heading.textContent);
-                }
-            });
-        }
-        
-        // 앵커 링크 이벤트 바인딩 함수
-        function bindAnchorLinks() {
-            document.querySelectorAll('#postBody a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function(e) {
-                    const href = this.getAttribute('href');
-                    if (!href || href === '#') return;
-                    
-                    try {
-                        const target = document.querySelector(href);
-                        if (target) {
-                            e.preventDefault();
-                            target.scrollIntoView({
-                                behavior: 'smooth',
-                                block: 'start'
-                            });
+            // 헤딩 텍스트를 id로 변환하는 함수
+            function slugify(text) {
+                return text
+                    .toLowerCase()
+                    .trim()
+                    .replace(/\s+/g, "-") // 공백을 -로
+                    .replace(/[^\w\uAC00-\uD7AF-]/g, "") // 영문, 숫자, 한글, - 만 유지
+                    .replace(/--+/g, "-") // 연속 -를 하나로
+                    .replace(/^-+|-+$/g, ""); // 앞뒤 - 제거
+            }
+
+            // 마크다운 렌더링 후 헤딩에 id 추가
+            function addHeadingIds(container) {
+                container
+                    .querySelectorAll("h1, h2, h3, h4, h5, h6")
+                    .forEach((heading) => {
+                        if (!heading.id) {
+                            heading.id = slugify(heading.textContent);
                         }
-                    } catch (error) {
-                        // 유효하지 않은 셀렉터 무시
-                    }
-                });
-            });
-        }
-
-        const cacheBuster = `?v=${Date.now()}`;
-        
-        // posts.json에서 카테고리, 날짜, 제목 가져오기 (title is from posts.json only)
-        async function getPostMeta(id) {
-            try {
-                const response = await fetch(`posts/posts.json${cacheBuster}`);
-                if (!response.ok) return { category: '기타', date: '', title: '' };
-                
-                const data = await response.json();
-                const categoryPosts = data.find(item => item.category_posts)?.category_posts || [];
-                
-                for (const cat of categoryPosts) {
-                    const post = cat.posts.find(p => p.id === id);
-                    if (post) {
-                        return { category: cat.category, date: post.date || '', title: post.title || '' };
-                    }
-                }
-                return { category: '기타', date: '', title: '' };
-            } catch (error) {
-                return { category: '기타', date: '', title: '' };
-            }
-        }
-
-        // 포스트 로드
-        async function loadPost() {
-            if (!postId) {
-                document.getElementById('postBody').innerHTML = '<p>포스트를 찾을 수 없습니다.</p>';
-                return;
-            }
-
-            try {
-                // 포스트 내용과 메타정보 동시 로드
-                const [mdResponse, postMeta] = await Promise.all([
-                    fetch(`posts/${postId}.md${cacheBuster}`),
-                    getPostMeta(postId)
-                ]);
-                
-                if (!mdResponse.ok) {
-                    throw new Error('포스트를 불러올 수 없습니다.');
-                }
-
-                const content = await mdResponse.text();
-                const { metadata, body } = parseFrontmatter(content);
-                const displayTitle = postMeta.title || metadata.title || '제목 없음';
-
-                // 메타데이터 표시 (title from posts.json; document may have no frontmatter title)
-                document.getElementById('postDate').textContent = postMeta.date;
-                document.getElementById('postCategory').textContent = postMeta.category;
-                document.getElementById('postTitleHeader').textContent = displayTitle;
-                document.title = `${displayTitle} - 우주여행사 Blog`;
-
-                // Protect \( \) so marked does not strip backslashes; restore after parse (use split/join to avoid regex escaping)
-                const PL = '%%%MATH_INLINE_OPEN%%%';
-                const PR = '%%%MATH_INLINE_CLOSE%%%';
-                const bodyForMarked = body.split('\\(').join(PL).split('\\)').join(PR);
-
-                // 마크다운 본문을 HTML로 변환
-                const postBody = document.getElementById('postBody');
-                let html = marked.parse(bodyForMarked);
-                postBody.innerHTML = html.split(PL).join('\\(').split(PR).join('\\)');
-                
-                // KaTeX로 수식 렌더링 ($$ block, \( \) inline)
-                if (typeof renderMathInElement === 'function') {
-                    renderMathInElement(postBody, {
-                        delimiters: [
-                            { left: '$$', right: '$$', display: true },
-                            { left: '\\(', right: '\\)', display: false }
-                        ],
-                        throwOnError: false
                     });
-                }
-                
-                // lazy load images
-                postBody.querySelectorAll('img').forEach(img => {
-                    img.setAttribute('loading', 'lazy');
-                    img.setAttribute('decoding', 'async');
-                });
-                
-                // 헤딩에 id 추가 (앵커 링크용)
-                addHeadingIds(postBody);
-                
-                // Prism.js로 코드 하이라이팅 적용
-                Prism.highlightAll();
-                
-                // 앵커 링크 이벤트 바인딩
-                bindAnchorLinks();
-            } catch (error) {
-                console.error('포스트 로드 오류:', error);
-                document.getElementById('postBody').innerHTML = '<p>포스트를 불러오는 중 오류가 발생했습니다.</p>';
             }
-        }
 
-        // 페이지 로드 시 포스트 로드
-       document.addEventListener('DOMContentLoaded', loadPost);
-    </script>
-</body>
+            // 앵커 링크 이벤트 바인딩 함수
+            function bindAnchorLinks() {
+                document
+                    .querySelectorAll('#postBody a[href^="#"]')
+                    .forEach((anchor) => {
+                        anchor.addEventListener("click", function (e) {
+                            const href = this.getAttribute("href");
+                            if (!href || href === "#") return;
+
+                            try {
+                                const target = document.querySelector(href);
+                                if (target) {
+                                    e.preventDefault();
+                                    target.scrollIntoView({
+                                        behavior: "smooth",
+                                        block: "start",
+                                    });
+                                }
+                            } catch (error) {
+                                // 유효하지 않은 셀렉터 무시
+                            }
+                        });
+                    });
+            }
+
+            const cacheBuster = `?v=${Date.now()}`;
+
+            // posts.json에서 카테고리, 날짜, 제목 가져오기 (title is from posts.json only)
+            async function getPostMeta(id) {
+                try {
+                    const response = await fetch(
+                        `posts/posts.json${cacheBuster}`,
+                    );
+                    if (!response.ok)
+                        return { category: "기타", date: "", title: "" };
+
+                    const data = await response.json();
+                    const categoryPosts =
+                        data.find((item) => item.category_posts)
+                            ?.category_posts || [];
+
+                    for (const cat of categoryPosts) {
+                        const post = cat.posts.find((p) => p.id === id);
+                        if (post) {
+                            return {
+                                category: cat.category,
+                                date: post.date || "",
+                                title: post.title || "",
+                            };
+                        }
+                    }
+                    return { category: "기타", date: "", title: "" };
+                } catch (error) {
+                    return { category: "기타", date: "", title: "" };
+                }
+            }
+
+            // 포스트 로드
+            async function loadPost() {
+                if (!postId) {
+                    document.getElementById("postBody").innerHTML =
+                        "<p>포스트를 찾을 수 없습니다.</p>";
+                    return;
+                }
+
+                try {
+                    // 포스트 내용과 메타정보 동시 로드
+                    const [mdResponse, postMeta] = await Promise.all([
+                        fetch(`posts/${postId}.md${cacheBuster}`),
+                        getPostMeta(postId),
+                    ]);
+
+                    if (!mdResponse.ok) {
+                        throw new Error("포스트를 불러올 수 없습니다.");
+                    }
+
+                    const content = await mdResponse.text();
+                    const { metadata, body } = parseFrontmatter(content);
+                    const displayTitle =
+                        postMeta.title || metadata.title || "제목 없음";
+
+                    // 메타데이터 표시 (title from posts.json; document may have no frontmatter title)
+                    document.getElementById("postDate").textContent =
+                        postMeta.date;
+                    document.getElementById("postCategory").textContent =
+                        postMeta.category;
+                    document.getElementById("postTitleHeader").textContent =
+                        displayTitle;
+                    document.title = `${displayTitle} - 우주여행사 Blog`;
+
+                    // Protect \( \) so marked does not strip backslashes; restore after parse (use split/join to avoid regex escaping)
+                    const PL = "%%%MATH_INLINE_OPEN%%%";
+                    const PR = "%%%MATH_INLINE_CLOSE%%%";
+                    const bodyForMarked = body
+                        .split("\\(")
+                        .join(PL)
+                        .split("\\)")
+                        .join(PR);
+
+                    // 마크다운 본문을 HTML로 변환
+                    const postBody = document.getElementById("postBody");
+                    let html = marked.parse(bodyForMarked);
+                    postBody.innerHTML = html
+                        .split(PL)
+                        .join("\\(")
+                        .split(PR)
+                        .join("\\)");
+
+                    // KaTeX로 수식 렌더링 ($$ block, \( \) inline)
+                    if (typeof renderMathInElement === "function") {
+                        renderMathInElement(postBody, {
+                            delimiters: [
+                                { left: "$$", right: "$$", display: true },
+                                { left: "\\(", right: "\\)", display: false },
+                            ],
+                            throwOnError: false,
+                        });
+                    }
+
+                    // lazy load images
+                    postBody.querySelectorAll("img").forEach((img) => {
+                        img.setAttribute("loading", "lazy");
+                        img.setAttribute("decoding", "async");
+                    });
+
+                    // 헤딩에 id 추가 (앵커 링크용)
+                    addHeadingIds(postBody);
+
+                    // Prism.js로 코드 하이라이팅 적용
+                    Prism.highlightAll();
+
+                    // 앵커 링크 이벤트 바인딩
+                    bindAnchorLinks();
+                } catch (error) {
+                    console.error("포스트 로드 오류:", error);
+                    document.getElementById("postBody").innerHTML =
+                        "<p>포스트를 불러오는 중 오류가 발생했습니다.</p>";
+                }
+            }
+
+            // 페이지 로드 시 포스트 로드
+            document.addEventListener("DOMContentLoaded", loadPost);
+        </script>
+    </body>
 </html>
