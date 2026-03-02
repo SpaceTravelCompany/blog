@@ -5,6 +5,10 @@
     box-sizing: border-box;
 }
 
+html {
+    overflow-x: hidden;
+}
+
 :root {
     --primary-color: #4A90E2;
     --secondary-color: #50C878;
@@ -37,6 +41,7 @@ body {
     line-height: 1.6;
     transition: var(--transition);
     overflow-x: hidden;
+    overflow-wrap: break-word;
 }
 
 /* Placeholders replaced by JS with header/footer (dynamic load) */
@@ -180,6 +185,10 @@ body {
     grid-template-columns: 1fr 350px;
     column-gap: 3rem;
     row-gap: 2rem;
+}
+
+.content-layout > * {
+    min-width: 0;
 }
 
 .section-title {
