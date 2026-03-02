@@ -1,4 +1,5 @@
-/* 기본 스타일 */
+/* ==================== Reset & Variables ==================== */
+
 * {
     margin: 0;
     padding: 0;
@@ -44,19 +45,19 @@ body {
     overflow-wrap: break-word;
 }
 
-/* Placeholders replaced by JS with header/footer (dynamic load) */
-#header-placeholder,
-#footer-placeholder {
-    display: block;
-}
-
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
 }
 
-/* 헤더 및 네비게이션 */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ==================== Header & Navigation ==================== */
+
 .header {
     background-color: var(--bg-color);
     box-shadow: var(--shadow);
@@ -167,19 +168,8 @@ body {
     border-radius: 2px;
 }
 
+/* ==================== Content Layout (index) ==================== */
 
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* 콘텐츠 레이아웃 */
 .content-layout {
     display: grid;
     grid-template-columns: 1fr 350px;
@@ -219,7 +209,8 @@ body {
     color: #ff6b6b;
 }
 
-/* 포스트 카드 */
+/* ==================== Post Card ==================== */
+
 .posts-section {
     margin-bottom: 3rem;
 }
@@ -229,7 +220,6 @@ body {
     border-radius: 12px;
     overflow: hidden;
     box-shadow: var(--shadow);
-    margin-bottom: 2rem;
     transition: var(--transition);
     border: 1px solid var(--border-color);
 }
@@ -314,7 +304,8 @@ body {
     transform: translateX(5px);
 }
 
-/* 페이지네이션 */
+/* ==================== Pagination ==================== */
+
 .pagination {
     display: flex;
     justify-content: center;
@@ -351,7 +342,8 @@ body {
     font-weight: 600;
 }
 
-/* 사이드바 */
+/* ==================== Sidebar ==================== */
+
 .sidebar {
     display: flex;
     flex-direction: column;
@@ -375,7 +367,7 @@ body {
     border-bottom: 2px solid var(--border-color);
 }
 
-/* 검색 폼 */
+/* Search */
 .search-form {
     display: flex;
     flex-direction: column;
@@ -421,7 +413,7 @@ body {
     transform: translateY(0);
 }
 
-/* 카테고리 리스트 */
+/* Categories */
 .category-list {
     list-style: none;
 }
@@ -462,7 +454,7 @@ body {
     font-size: 0.9rem;
 }
 
-/* 최근 포스트 */
+/* Recent Posts */
 .recent-posts {
     list-style: none;
 }
@@ -501,7 +493,7 @@ body {
     color: var(--text-light);
 }
 
-/* 태그 클라우드 */
+/* Tag Cloud */
 .tag-cloud {
     display: flex;
     flex-wrap: wrap;
@@ -526,9 +518,7 @@ body {
     transform: translateY(-2px);
 }
 
-/* ========================================
-   포스트 상세 페이지
-   ======================================== */
+/* ==================== Post Detail Page ==================== */
 
 .post-detail {
     max-width: 1000px;
@@ -536,7 +526,6 @@ body {
     padding: 3rem 0;
 }
 
-/* 포스트 헤더 */
 .post-detail .post-header {
     text-align: center;
     margin-bottom: 3rem;
@@ -559,14 +548,13 @@ body {
     margin: 0;
 }
 
-/* 포스트 본문 */
+/* Post Body */
 .post-body {
     font-size: 1.1rem;
     line-height: 1.9;
     color: var(--text-color);
 }
 
-/* 본문 헤딩 */
 .post-body h1,
 .post-body h2,
 .post-body h3,
@@ -581,7 +569,7 @@ body {
 }
 
 .post-body h1 { font-size: 2rem; }
-.post-body h2 { 
+.post-body h2 {
     font-size: 1.75rem;
     padding-bottom: 0.5rem;
     border-bottom: 2px solid var(--primary-color);
@@ -591,12 +579,10 @@ body {
 .post-body h5 { font-size: 1.1rem; }
 .post-body h6 { font-size: 1rem; }
 
-/* 본문 단락 */
 .post-body p {
     margin-bottom: 1.5rem;
 }
 
-/* 본문 링크 */
 .post-body a {
     color: var(--primary-color);
     text-decoration: none;
@@ -608,7 +594,6 @@ body {
     border-bottom-color: var(--primary-color);
 }
 
-/* 본문 리스트 */
 .post-body ul,
 .post-body ol {
     margin-bottom: 1.5rem;
@@ -631,7 +616,7 @@ body {
     margin-bottom: 0.5rem;
 }
 
-/* 인라인 코드 */
+/* Inline Code */
 .post-body code:not([class*="language-"]) {
     background-color: var(--bg-light);
     color: var(--primary-color);
@@ -642,13 +627,12 @@ body {
     border: 1px solid var(--border-color);
 }
 
-/* 코드 블록 */
+/* Code Block */
 .post-body pre {
     overflow-x: auto;
     max-width: 100%;
 }
 
-/* 코드 블록 - Prism.js 통합 */
 .post-body pre[class*="language-"] {
     border-radius: 12px !important;
     margin-bottom: 1.5rem !important;
@@ -667,7 +651,7 @@ body {
     font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
 }
 
-/* Prism 툴바 (복사 버튼) 스타일 */
+/* Prism Toolbar */
 div.code-toolbar > .toolbar {
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -693,7 +677,6 @@ div.code-toolbar > .toolbar > .toolbar-item > button:hover {
     transform: translateY(-2px);
 }
 
-/* 언어 라벨 스타일 */
 .post-body pre[class*="language-"]::before {
     content: attr(data-language);
     position: absolute;
@@ -708,7 +691,7 @@ div.code-toolbar > .toolbar > .toolbar-item > button:hover {
     border-radius: 0 0 6px 6px;
 }
 
-/* 인용문 */
+/* Blockquote */
 .post-body blockquote {
     border-left: 4px solid var(--primary-color);
     padding: 1rem 1.5rem;
@@ -723,7 +706,7 @@ div.code-toolbar > .toolbar > .toolbar-item > button:hover {
     margin-bottom: 0;
 }
 
-/* 수평선 */
+/* Horizontal Rule */
 .post-body hr {
     border: none;
     height: 2px;
@@ -731,7 +714,7 @@ div.code-toolbar > .toolbar > .toolbar-item > button:hover {
     margin: 3rem 0;
 }
 
-/* post body images */
+/* Images */
 .post-body img {
     display: block;
     max-width: 100%;
@@ -742,16 +725,7 @@ div.code-toolbar > .toolbar > .toolbar-item > button:hover {
     border: 1px solid var(--border-color);
 }
 
-.post-body p:has(> img:only-child) {
-    text-align: center;
-}
-
-.post-body p:has(> img:only-child) img {
-    margin-left: auto;
-    margin-right: auto;
-}
-
-/* 테이블 */
+/* Table */
 .post-body table {
     width: 100%;
     border-collapse: collapse;
@@ -777,15 +751,14 @@ div.code-toolbar > .toolbar > .toolbar-item > button:hover {
     background-color: var(--bg-light);
 }
 
-/* 체크박스 리스트 */
+/* Checkbox */
 .post-body input[type="checkbox"] {
     margin-right: 0.5rem;
     accent-color: var(--primary-color);
 }
 
-/* 강조 텍스트 */
+/* Text Emphasis */
 .post-body strong {
-    color: var(--text-color);
     font-weight: 600;
 }
 
@@ -793,7 +766,7 @@ div.code-toolbar > .toolbar > .toolbar-item > button:hover {
     color: var(--text-light);
 }
 
-/* KaTeX math (block display) */
+/* KaTeX */
 .post-body .katex-display {
     margin: 1rem 0;
     overflow-x: auto;
@@ -804,7 +777,7 @@ div.code-toolbar > .toolbar > .toolbar-item > button:hover {
     font-size: 1.1em;
 }
 
-/* 포스트 푸터 */
+/* Post Footer */
 .post-footer {
     margin-top: 4rem;
     padding-top: 2rem;
@@ -833,35 +806,8 @@ div.code-toolbar > .toolbar > .toolbar-item > button:hover {
     transform: translateX(-5px);
 }
 
-/* 반응형 - 포스트 상세 */
-@media (max-width: 768px) {
-    .post-detail {
-        padding: 2rem 0;
-    }
+/* ==================== Footer ==================== */
 
-    .post-detail .post-title {
-        font-size: 1.75rem;
-    }
-
-    .post-body {
-        font-size: 1rem;
-    }
-
-    .post-body h2 {
-        font-size: 1.4rem;
-    }
-
-    .post-body h3 {
-        font-size: 1.2rem;
-    }
-
-    .post-body pre {
-        padding: 1rem;
-        border-radius: 8px;
-    }
-}
-
-/* 푸터 */
 .footer {
     background-color: var(--bg-light);
     padding: 1.5rem 0 1rem;
@@ -934,7 +880,8 @@ div.code-toolbar > .toolbar > .toolbar-item > button:hover {
     color: var(--text-light);
 }
 
-/* 반응형 디자인 */
+/* ==================== Responsive ==================== */
+
 @media (max-width: 968px) {
     .content-layout {
         grid-template-columns: 1fr;
@@ -950,6 +897,7 @@ div.code-toolbar > .toolbar > .toolbar-item > button:hover {
 }
 
 @media (max-width: 768px) {
+    /* Navigation */
     .nav-menu {
         position: fixed;
         left: -100%;
@@ -977,9 +925,8 @@ div.code-toolbar > .toolbar > .toolbar-item > button:hover {
         display: flex;
     }
 
-
+    /* Index */
     .section-title {
-        font-size: 1.5rem;
         margin-top: 0.25rem;
     }
 
@@ -990,13 +937,38 @@ div.code-toolbar > .toolbar > .toolbar-item > button:hover {
     .post-title a {
         font-size: 1.25rem;
     }
+
+    /* Post Detail */
+    .post-detail {
+        padding: 2rem 0;
+    }
+
+    .post-detail .post-title {
+        font-size: 1.75rem;
+    }
+
+    .post-body {
+        font-size: 1rem;
+    }
+
+    .post-body h2 {
+        font-size: 1.4rem;
+    }
+
+    .post-body h3 {
+        font-size: 1.2rem;
+    }
+
+    .post-body pre {
+        padding: 1rem;
+        border-radius: 8px;
+    }
 }
 
 @media (max-width: 480px) {
     .container {
         padding: 0 15px;
     }
-
 
     .post-image {
         height: 200px;
@@ -1006,4 +978,3 @@ div.code-toolbar > .toolbar > .toolbar-item > button:hover {
         flex-wrap: wrap;
     }
 }
-
