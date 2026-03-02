@@ -36,6 +36,7 @@ body {
     background-color: var(--bg-color);
     line-height: 1.6;
     transition: var(--transition);
+    overflow-x: hidden;
 }
 
 /* Placeholders replaced by JS with header/footer (dynamic load) */
@@ -632,6 +633,12 @@ body {
     border: 1px solid var(--border-color);
 }
 
+/* 코드 블록 */
+.post-body pre {
+    overflow-x: auto;
+    max-width: 100%;
+}
+
 /* 코드 블록 - Prism.js 통합 */
 .post-body pre[class*="language-"] {
     border-radius: 12px !important;
@@ -741,6 +748,8 @@ div.code-toolbar > .toolbar > .toolbar-item > button:hover {
     border-collapse: collapse;
     margin-bottom: 1.5rem;
     font-size: 0.95rem;
+    display: block;
+    overflow-x: auto;
 }
 
 .post-body th,
