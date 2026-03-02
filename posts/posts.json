@@ -1,6 +1,6 @@
 [
 	{
-		"all_posts_count": 12
+		"all_posts_count": 11
 	},
 	{
 		"category_posts": [
@@ -9,7 +9,7 @@
 				"count": 10,
 				"posts": [
 					{
-						"id": "12",
+						"id": "11",
 						"title": "Slang 문법 노트",
 						"date": "2026-02-28 22:17"
 					},
@@ -68,17 +68,6 @@
 						"id": "8",
 						"title": "은근 헷갈리는 로그 정리",
 						"date": "2026-02-10 05:33"
-					}
-				]
-			},
-			{
-				"category": "일상",
-				"count": 1,
-				"posts": [
-					{
-						"id": "11",
-						"title": "집중이 안되는 나",
-						"date": "2026-02-28 21:57"
 					}
 				]
 			}
