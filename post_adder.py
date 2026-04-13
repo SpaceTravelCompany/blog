@@ -10,7 +10,7 @@ class PostAdder:
     def __init__(self, root):
         self.root = root
         self.root.title("블로그 포스트 추가")
-        self.root.geometry("500x500")
+        self.root.geometry("500x620")
         self.root.resizable(False, False)
 
         self.selected_file = None
@@ -53,6 +53,7 @@ class PostAdder:
         category_frame.pack(fill="x", padx=10, pady=10)
 
         self.category_var = tk.StringVar()
+        self.new_category_var = tk.StringVar()
         self.categories = self.get_categories_from_json()
         self.category_combo = ttk.Combobox(
             category_frame,
@@ -65,6 +66,20 @@ class PostAdder:
             self.category_combo.set(self.categories[0])
         self.category_combo.pack(pady=5)
 
+        add_category_frame = ttk.Frame(category_frame)
+        add_category_frame.pack(fill="x", pady=5)
+
+        self.new_category_entry = ttk.Entry(
+            add_category_frame, textvariable=self.new_category_var, width=30
+        )
+        self.new_category_entry.pack(side="left", fill="x", expand=True)
+
+        ttk.Button(
+            add_category_frame,
+            text="카테고리 추가",
+            command=self.add_category,
+        ).pack(side="left", padx=(8, 0))
+
         # 정보 표시 영역
         info_frame = ttk.LabelFrame(self.root, text="자동 생성 정보", padding=10)
         info_frame.pack(fill="x", padx=10, pady=10)
@@ -76,7 +91,9 @@ class PostAdder:
         self.date_label.pack(anchor="w")
 
         # 추가 버튼
-        ttk.Button(self.root, text="포스트 추가", command=self.add_post).pack(pady=20)
+        ttk.Button(self.root, text="포스트 추가", command=self.add_post).pack(
+            pady=(10, 20)
+        )
 
     def browse_file(self):
         file_path = filedialog.askopenfilename(
@@ -103,6 +120,46 @@ class PostAdder:
         with open(self.get_posts_json_path(), "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent="\t")
 
+    def refresh_categories(self, selected_category=None):
+        self.categories = self.get_categories_from_json()
+        self.category_combo["values"] = self.categories
+        if selected_category:
+            self.category_combo.set(selected_category)
+        elif self.categories:
+            self.category_combo.set(self.categories[0])
+
+    def add_category(self):
+        category_name = self.new_category_var.get().strip()
+        if not category_name:
+            messagebox.showerror("오류", "추가할 카테고리 이름을 입력해주세요.")
+            return
+
+        data = self.load_posts_json()
+
+        for item in data:
+            if "category_posts" not in item:
+                continue
+
+            categories = item["category_posts"]
+            if any(cat.get("category") == category_name for cat in categories):
+                messagebox.showerror("오류", "이미 존재하는 카테고리입니다.")
+                return
+
+            categories.append(
+                {
+                    "category": category_name,
+                    "count": 0,
+                    "posts": [],
+                }
+            )
+            self.save_posts_json(data)
+            self.new_category_var.set("")
+            self.refresh_categories(selected_category=category_name)
+            messagebox.showinfo("성공", f"카테고리 '{category_name}'를 추가했습니다.")
+            return
+
+        messagebox.showerror("오류", "posts.json에서 카테고리 목록을 찾지 못했습니다.")
+
     def get_next_id(self):
         """현재 최대 ID + 1 반환"""
         data = self.load_posts_json()
@@ -111,8 +168,11 @@ class PostAdder:
         for item in data:
             if "category_posts" in item:
                 for category in item["category_posts"]:
-                    for post in category["posts"]:
-                        post_id = int(post["id"])
+                    for post in category.get("posts", []):
+                        post_id_value = post.get("id")
+                        if post_id_value is None:
+                            continue
+                        post_id = int(post_id_value)
                         if post_id > max_id:
                             max_id = post_id
 
