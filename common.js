@@ -26,6 +26,12 @@ document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
 // runInit 함수: 테마 변경, 모바일 메뉴 토글, 헤더 스크롤 효과 등 UI 초기화 기능 담당
 // header/footer 완료시 실행
 function runInit() {
+    function updateHeaderOffset() {
+        var header = document.querySelector('.header');
+        var offset = header ? Math.ceil(header.getBoundingClientRect().height) : 86;
+        document.documentElement.style.setProperty('--header-offset', offset + 'px');
+    }
+
     var themeToggle = document.getElementById('themeToggle');
     if (themeToggle) {
         var themeIcon = themeToggle.querySelector('.theme-icon');
@@ -56,6 +62,7 @@ function runInit() {
 
     var header = document.querySelector('.header');
     if (header) {
+        updateHeaderOffset();
         window.addEventListener('scroll', function () {
             var currentScroll = window.pageYOffset;
             if (currentScroll > 100) {
@@ -64,6 +71,7 @@ function runInit() {
                 header.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
             }
         });
+        window.addEventListener('resize', updateHeaderOffset);
     }
 }
 

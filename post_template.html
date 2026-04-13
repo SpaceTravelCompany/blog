@@ -36,28 +36,37 @@
         <!-- 메인 콘텐츠 -->
         <main class="main-content">
             <div class="container">
-                <article class="post-detail">
-                    <div class="post-header">
-                        <div class="post-meta">
-                            <span class="post-date" id="postDate"></span>
-                            <span
-                                class="post-category"
-                                id="postCategory"
-                            ></span>
+                <div class="post-page-layout">
+                    <aside class="post-toc" id="postToc" aria-label="포스트 목차">
+                        <div class="post-toc-card">
+                            <nav class="post-toc-nav" id="postTocNav">
+                                <p class="post-toc-empty">목차를 준비하는 중...</p>
+                            </nav>
                         </div>
-                        <h1 class="post-title" id="postTitleHeader"></h1>
-                    </div>
-                    <div class="post-body" id="postBody">
-                        <div class="loading-message">
-                            포스트를 불러오는 중...
+                    </aside>
+                    <article class="post-detail">
+                        <div class="post-header">
+                            <div class="post-meta">
+                                <span class="post-date" id="postDate"></span>
+                                <span
+                                    class="post-category"
+                                    id="postCategory"
+                                ></span>
+                            </div>
+                            <h1 class="post-title" id="postTitleHeader"></h1>
                         </div>
-                    </div>
-                    <div class="post-footer">
-                        <a href="javascript:history.back()" class="back-to-list"
-                            >← 목록으로 돌아가기</a
-                        >
-                    </div>
-                </article>
+                        <div class="post-body" id="postBody">
+                            <div class="loading-message">
+                                포스트를 불러오는 중...
+                            </div>
+                        </div>
+                        <div class="post-footer">
+                            <a href="javascript:history.back()" class="back-to-list"
+                                >← 목록으로 돌아가기</a
+                            >
+                        </div>
+                    </article>
+                </div>
             </div>
         </main>
 
@@ -71,6 +80,21 @@
             // URL에서 포스트 ID 가져오기
             const urlParams = new URLSearchParams(window.location.search);
             const postId = urlParams.get("id");
+            let tocObserver = null;
+
+            function getUniqueHeadingId(baseId, usedIds) {
+                const safeBaseId = baseId || "section";
+                let candidate = safeBaseId;
+                let suffix = 2;
+
+                while (usedIds.has(candidate)) {
+                    candidate = `${safeBaseId}-${suffix}`;
+                    suffix += 1;
+                }
+
+                usedIds.add(candidate);
+                return candidate;
+            }
 
             // 헤딩 텍스트를 id로 변환하는 함수
             function slugify(text) {
@@ -85,19 +109,65 @@
 
             // 마크다운 렌더링 후 헤딩에 id 추가
             function addHeadingIds(container) {
+                const usedIds = new Set();
                 container
                     .querySelectorAll("h1, h2, h3, h4, h5, h6")
                     .forEach((heading) => {
-                        if (!heading.id) {
-                            heading.id = slugify(heading.textContent);
-                        }
+                        heading.id = getUniqueHeadingId(
+                            heading.id || slugify(heading.textContent),
+                            usedIds,
+                        );
                     });
             }
 
-            // 앵커 링크 이벤트 바인딩 함수
-            function bindAnchorLinks() {
+            function buildTableOfContents(container) {
+                const toc = document.getElementById("postToc");
+                const tocNav = document.getElementById("postTocNav");
+                const layout = document.querySelector(".post-page-layout");
+                if (!toc || !tocNav) return;
+
+                const headings = Array.from(
+                    container.querySelectorAll("h1, h2, h3, h4"),
+                )
+                    .filter((heading) => heading.textContent.trim())
+                    .filter((heading, index, allHeadings) => {
+                        const firstHeading = allHeadings[0];
+                        return !(
+                            index === 0 && firstHeading?.tagName === "H1"
+                        );
+                    });
+
+                if (headings.length === 0) {
+                    toc.classList.add("is-empty");
+                    if (layout) {
+                        layout.classList.add("no-toc");
+                    }
+                    tocNav.innerHTML =
+                        '<p class="post-toc-empty">목차를 만들 헤딩이 없습니다.</p>';
+                    return;
+                }
+
+                toc.classList.remove("is-empty");
+                if (layout) {
+                    layout.classList.remove("no-toc");
+                }
+                tocNav.innerHTML = "";
+
+                headings.forEach((heading) => {
+                    const link = document.createElement("a");
+                    link.className = `post-toc-link level-${heading.tagName.toLowerCase()}`;
+                    link.href = `#${heading.id}`;
+                    link.dataset.targetId = heading.id;
+                    link.textContent = heading.textContent.trim();
+                    tocNav.appendChild(link);
+                });
+            }
+
+            function bindSmoothHashLinks() {
                 document
-                    .querySelectorAll('#postBody a[href^="#"]')
+                    .querySelectorAll(
+                        '#postBody a[href^="#"], .post-toc-link[href^="#"]',
+                    )
                     .forEach((anchor) => {
                         anchor.addEventListener("click", function (e) {
                             const href = this.getAttribute("href");
@@ -107,6 +177,7 @@
                                 const target = document.querySelector(href);
                                 if (target) {
                                     e.preventDefault();
+                                    history.replaceState(null, "", href);
                                     target.scrollIntoView({
                                         behavior: "smooth",
                                         block: "start",
@@ -117,6 +188,63 @@
                             }
                         });
                     });
+            }
+
+            function enableTableOfContentsTracking() {
+                const tocLinks = Array.from(
+                    document.querySelectorAll(".post-toc-link"),
+                );
+
+                if (tocObserver) {
+                    tocObserver.disconnect();
+                }
+
+                if (tocLinks.length === 0) return;
+
+                const setActiveLink = (id) => {
+                    tocLinks.forEach((link) => {
+                        link.classList.toggle(
+                            "active",
+                            link.dataset.targetId === id,
+                        );
+                    });
+                };
+
+                const headings = tocLinks
+                    .map((link) =>
+                        document.getElementById(link.dataset.targetId),
+                    )
+                    .filter(Boolean);
+
+                if (headings.length === 0) return;
+
+                tocObserver = new IntersectionObserver(
+                    (entries) => {
+                        const visibleHeadings = entries
+                            .filter((entry) => entry.isIntersecting)
+                            .sort(
+                                (a, b) =>
+                                    a.boundingClientRect.top -
+                                    b.boundingClientRect.top,
+                            );
+
+                        if (visibleHeadings.length > 0) {
+                            setActiveLink(visibleHeadings[0].target.id);
+                        }
+                    },
+                    {
+                        rootMargin: "-18% 0px -68% 0px",
+                        threshold: 0,
+                    },
+                );
+
+                headings.forEach((heading) => tocObserver.observe(heading));
+                setActiveLink(headings[0].id);
+            }
+
+            // 앵커 링크 이벤트 바인딩 함수
+            function bindAnchorLinks() {
+                bindSmoothHashLinks();
             }
 
             const cacheBuster = `?v=${Date.now()}`;
@@ -221,12 +349,14 @@
 
                     // 헤딩에 id 추가 (앵커 링크용)
                     addHeadingIds(postBody);
+                    buildTableOfContents(postBody);
 
                     // Prism.js로 코드 하이라이팅 적용
                     Prism.highlightAll();
 
                     // 앵커 링크 이벤트 바인딩
                     bindAnchorLinks();
+                    enableTableOfContentsTracking();
                 } catch (error) {
                     console.error("포스트 로드 오류:", error);
                     document.getElementById("postBody").innerHTML =
