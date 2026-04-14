@@ -6,10 +6,6 @@
     box-sizing: border-box;
 }
 
-html {
-    overflow-x: hidden;
-}
-
 :root {
     --primary-color: #4A90E2;
     --secondary-color: #50C878;
@@ -44,7 +40,6 @@ body {
     background-color: var(--bg-color);
     line-height: 1.6;
     transition: var(--transition);
-    overflow-x: hidden;
     overflow-wrap: break-word;
 }
 
@@ -532,7 +527,7 @@ body {
     align-items: start;
 }
 
-@media (min-width: 1101px) {
+@media (min-width: 1400px) {
     :root {
         --post-layout-shift: -120px;
     }
@@ -546,32 +541,16 @@ body {
         position: static;
         left: auto;
     }
-
-    .main-content .post-toc {
-        left: max(15px, calc(50% - 580px + var(--post-layout-shift)));
-    }
 }
 
 .post-toc {
-    position: fixed;
-    top: calc(var(--header-offset));
-    bottom: 0px;
-    left: max(15px, calc(50% - 580px));
+    position: relative;
+    align-self: stretch;
     width: 280px;
-    z-index: 100;
-    overflow-y: auto;
-    overflow-x: hidden;
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+    min-width: 0;
 }
 
 .post-toc.is-empty {
-    display: none;
-}
-
-.post-toc::-webkit-scrollbar {
     display: none;
 }
 
@@ -584,11 +563,24 @@ body {
 }
 
 .post-toc-card {
+    position: sticky;
+    top: calc(var(--header-offset) + var(--toc-gap));
+    max-height: calc(100vh - var(--header-offset) - (var(--toc-gap) * 2));
     background: linear-gradient(180deg, var(--bg-light) 0%, var(--bg-color) 100%);
     border: 1px solid var(--border-color);
     border-radius: 16px;
     padding: 1.25rem 1rem;
     box-shadow: var(--shadow);
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.post-toc-card::-webkit-scrollbar {
+    display: none;
 }
 
 .post-toc-label {
@@ -626,7 +618,7 @@ body {
 
 .post-toc-link.level-h1 {
     font-size: 1.1rem;
-    font-style: bold;
+    font-weight: bold;
 }
 
 .post-toc-link:hover {
