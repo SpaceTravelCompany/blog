@@ -23,6 +23,7 @@ html {
     --transition: all 0.3s ease;
     --header-offset: 86px;
     --toc-gap: 12px;
+    --post-layout-shift: 0px;
 }
 
 [data-theme="dark"] {
@@ -529,6 +530,26 @@ body {
     grid-template-columns: 280px minmax(0, 1fr);
     gap: 2.5rem;
     align-items: start;
+}
+
+@media (min-width: 1101px) {
+    :root {
+        --post-layout-shift: -120px;
+    }
+
+    .post-page-layout {
+        position: relative;
+        left: var(--post-layout-shift);
+    }
+
+    .post-page-layout.no-toc {
+        position: static;
+        left: auto;
+    }
+
+    .main-content .post-toc {
+        left: max(15px, calc(50% - 580px + var(--post-layout-shift)));
+    }
 }
 
 .post-toc {
