@@ -1,6 +1,6 @@
 [
 	{
-		"all_posts_count": 12
+		"all_posts_count": 13
 	},
 	{
 		"category_posts": [
@@ -73,8 +73,13 @@
 			},
 			{
 				"category": "프로그래밍 언어 개발",
-				"count": 1,
+				"count": 2,
 				"posts": [
+					{
+						"id": "13",
+						"title": "언어 문법 정리 (추가/수정 예정)",
+						"date": "2026-04-16 02:38"
+					},
 					{
 						"id": "12",
 						"title": "컴파일러 토큰화 이후 파싱 & AST 정리 (from GPT)",
