@@ -133,6 +133,11 @@ function parseFrontmatter(content) {
 function extractExcerpt(body, maxLength = 120) {
     // 마크다운 문법 제거
     let text = body
+        .replace(/<iframe[\s\S]*?<\/iframe>/gi, ' ') // iframe 블록 제거
+        .replace(/<style[\s\S]*?<\/style>/gi, ' ') // style 블록 제거
+        .replace(/<script[\s\S]*?<\/script>/gi, ' ') // script 블록 제거
+        .replace(/!\[[^\]]*\]\([^)]+\)/g, ' ') // 마크다운 이미지 제거
+        .replace(/<[^>]+>/g, ' ') // HTML 태그 제거
         .replace(/^#+\s+.*$/gm, '') // 헤딩 제거
         .replace(/```[\s\S]*?```/g, '') // 코드 블록 제거
         .replace(/`[^`]+`/g, '') // 인라인 코드 제거
@@ -141,6 +146,7 @@ function extractExcerpt(body, maxLength = 120) {
         .replace(/^\s*[-*]\s+/gm, '') // 리스트 마커 제거
         .replace(/^\s*\d+\.\s+/gm, '') // 숫자 리스트 마커 제거
         .replace(/\n+/g, ' ') // 줄바꿈을 공백으로
+        .replace(/\s+/g, ' ') // 연속 공백 정리
         .trim();
     
     if (text.length <= maxLength) {

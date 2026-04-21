@@ -1,13 +1,18 @@
 [
 	{
-		"all_posts_count": 13
+		"all_posts_count": 14
 	},
 	{
 		"category_posts": [
 			{
 				"category": "기술",
-				"count": 10,
+				"count": 11,
 				"posts": [
+					{
+						"id": "14",
+						"title": "웹 앱 표준편차 그래프 예제",
+						"date": "2026-04-21 10:00"
+					},
 					{
 						"id": "11",
 						"title": "Slang 문법 노트",

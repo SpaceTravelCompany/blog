@@ -39,6 +39,7 @@ jobs:
           mkdir -p _site/partials
           cp partials/header.html partials/footer.html _site/partials/
           cp -r posts _site/
+          [ -d webapps ] && cp -r webapps _site/ || true
           [ -d images ] && cp -r images _site/ || true
 
       - name: Upload artifact

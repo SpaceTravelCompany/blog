@@ -72,6 +72,7 @@ let totalPages = 0;
 let selectedCategory = null;
 let searchTerm = '';
 const cacheBuster = `?v=${Date.now()}`;
+
 // 포스트 기본 데이터 로드 (posts.json에서 id, 카테고리, 제목, 날짜 정보)
 async function loadPostsData() {
     try {
@@ -226,7 +227,6 @@ async function displayPosts(page) {
                     <a href="post_template.html?id=${post.id}">${post.title}</a>
                 </h3>
                 <p class="post-excerpt">${post.excerpt}</p>
-                <a href="post_template.html?id=${post.id}" class="read-more">더 읽기 →</a>
             </div>
         `;
 

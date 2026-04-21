@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gaussian IQ Width Ratio</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: "Segoe UI", Arial, sans-serif;
+      }
+
+      html,
+      body {
+        margin: 0;
+        background: #111827;
+        color: #e5e7eb;
+      }
+
+      .layout {
+        max-width: 1040px;
+        margin: 16px auto;
+        padding: 0 16px 20px;
+      }
+
+      h1 {
+        margin: 0 0 10px;
+        font-size: 22px;
+        font-weight: 600;
+      }
+
+      .chart-wrap {
+        position: relative;
+        background: #0b1220;
+        border: 1px solid #374151;
+        border-radius: 10px;
+        padding: 12px;
+      }
+
+      #chart {
+        width: 100%;
+        height: auto;
+        display: block;
+        background: #0b1220;
+      }
+
+      .info-box {
+        position: absolute;
+        left: 18px;
+        top: 18px;
+        padding: 8px 10px;
+        border-radius: 8px;
+        background: rgba(245, 158, 11, 0.2);
+        border: 1px solid rgba(245, 158, 11, 0.4);
+        font-size: 13px;
+        line-height: 1.4;
+        white-space: pre-line;
+      }
+
+      .controls {
+        margin-top: 16px;
+        display: grid;
+        gap: 10px;
+      }
+
+      label {
+        font-size: 14px;
+        color: #d1d5db;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        accent-color: #10b981;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="layout">
+      <h1>Gaussian Width Ratio Sliders</h1>
+      <section class="chart-wrap">
+        <canvas id="chart" width="980" height="460"></canvas>
+        <div id="info" class="info-box"></div>
+      </section>
+
+      <section class="controls">
+        <label for="iqSigma">IQ sigma: <span id="iqSigmaValue">15</span></label>
+        <input id="iqSigma" type="range" min="5" max="40" step="1" value="15" />
+
+        <label for="percent">Percent %: <span id="percentValue">68.27</span></label>
+        <input id="percent" type="range" min="0" max="100" step="0.1" value="68.27" />
+
+        <label for="maxZ">Max z: <span id="maxZValue">6.0</span></label>
+        <input id="maxZ" type="range" min="3" max="6" step="0.1" value="6" />
+      </section>
+    </main>
+
+    <script>
+      const iqMean = 100;
+      const minSigma = 0;
+
+      const canvas = document.getElementById("chart");
+      const ctx = canvas.getContext("2d");
+      const info = document.getElementById("info");
+
+      const iqSigmaInput = document.getElementById("iqSigma");
+      const percentInput = document.getElementById("percent");
+      const maxZInput = document.getElementById("maxZ");
+
+      const iqSigmaValue = document.getElementById("iqSigmaValue");
+      const percentValue = document.getElementById("percentValue");
+      const maxZValue = document.getElementById("maxZValue");
+
+      function erf(x) {
+        const sign = x < 0 ? -1 : 1;
+        const ax = Math.abs(x);
+        const p = 0.3275911;
+        const a1 = 0.254829592;
+        const a2 = -0.284496736;
+        const a3 = 1.421413741;
+        const a4 = -1.453152027;
+        const a5 = 1.061405429;
+        const t = 1 / (1 + p * ax);
+        const y = 1 - (((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t) * Math.exp(-ax * ax);
+        return sign * y;
+      }
+
+      function gaussianWidthRatio(stdDevs) {
+        return erf(stdDevs / Math.sqrt(2));
+      }
+
+      function ratioToSigma(ratio, zMax) {
+        if (ratio <= 0) {
+          return 0;
+        }
+        const target = Math.min(Math.max(ratio, 1e-12), 1 - 1e-12);
+        let lo = minSigma;
+        let hi = zMax;
+        for (let i = 0; i < 60; i += 1) {
+          const mid = (lo + hi) / 2;
+          const value = gaussianWidthRatio(mid);
+          if (value < target) {
+            lo = mid;
+          } else {
+            hi = mid;
+          }
+        }
+        return (lo + hi) / 2;
+      }
+
+      function normalPdf(x) {
+        return (1 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * x * x);
+      }
+
+      function drawChart(sigma, zMax) {
+        const width = canvas.width;
+        const height = canvas.height;
+        const left = 58;
+        const right = 20;
+        const top = 20;
+        const bottom = 44;
+        const plotW = width - left - right;
+        const plotH = height - top - bottom;
+
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = "#0b1220";
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.strokeStyle = "#334155";
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 6; i += 1) {
+          const y = top + (plotH / 6) * i;
+          ctx.beginPath();
+          ctx.moveTo(left, y);
+          ctx.lineTo(left + plotW, y);
+          ctx.stroke();
+        }
+
+        ctx.strokeStyle = "#475569";
+        ctx.beginPath();
+        ctx.moveTo(left, top);
+        ctx.lineTo(left, top + plotH);
+        ctx.lineTo(left + plotW, top + plotH);
+        ctx.stroke();
+
+        const xToPx = (x) => left + ((x + zMax) / (2 * zMax)) * plotW;
+        const yToPx = (y) => top + plotH - (y / 0.45) * plotH;
+
+        ctx.strokeStyle = "rgba(148, 163, 184, 0.35)";
+        ctx.lineWidth = 1;
+        const startInt = Math.ceil(-zMax);
+        const endInt = Math.floor(zMax);
+        for (let xMark = startInt; xMark <= endInt; xMark += 1) {
+          const px = xToPx(xMark);
+          ctx.beginPath();
+          ctx.moveTo(px, top);
+          ctx.lineTo(px, top + plotH);
+          ctx.stroke();
+        }
+
+        const sampleCount = 1200;
+        const step = (2 * zMax) / sampleCount;
+
+        ctx.beginPath();
+        for (let i = 0; i <= sampleCount; i += 1) {
+          const x = -zMax + step * i;
+          const y = normalPdf(x);
+          const px = xToPx(x);
+          const py = yToPx(y);
+          if (i === 0) {
+            ctx.moveTo(px, py);
+          } else {
+            ctx.lineTo(px, py);
+          }
+        }
+        ctx.strokeStyle = "#38bdf8";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.beginPath();
+        let started = false;
+        for (let i = 0; i <= sampleCount; i += 1) {
+          const x = -zMax + step * i;
+          if (x < -sigma || x > sigma) {
+            continue;
+          }
+          const y = normalPdf(x);
+          const px = xToPx(x);
+          const py = yToPx(y);
+          if (!started) {
+            ctx.moveTo(px, yToPx(0));
+            ctx.lineTo(px, py);
+            started = true;
+          } else {
+            ctx.lineTo(px, py);
+          }
+        }
+        if (started) {
+          ctx.lineTo(xToPx(sigma), yToPx(0));
+          ctx.closePath();
+          ctx.fillStyle = "rgba(16, 185, 129, 0.35)";
+          ctx.fill();
+        }
+
+        ctx.fillStyle = "#e5e7eb";
+        ctx.font = "12px Segoe UI";
+        for (let xLabel = startInt; xLabel <= endInt; xLabel += 1) {
+          const px = xToPx(xLabel);
+          const offset = xLabel >= 0 ? 4 : 8;
+          ctx.fillText(String(xLabel), px - offset, top + plotH + 18);
+        }
+        ctx.fillText("z", left + plotW + 6, top + plotH + 4);
+      }
+
+      function syncAndRender() {
+        const iqSigma = Number(iqSigmaInput.value);
+        const zMax = Number(maxZInput.value);
+
+        let ratio = Number(percentInput.value) / 100;
+        let sigma = ratioToSigma(ratio, zMax);
+        if (sigma > zMax) {
+          sigma = zMax;
+          ratio = gaussianWidthRatio(sigma);
+          percentInput.value = (ratio * 100).toFixed(2);
+        }
+
+        if (sigma < minSigma) {
+          sigma = minSigma;
+          ratio = gaussianWidthRatio(sigma);
+          percentInput.value = (ratio * 100).toFixed(2);
+        }
+
+        const inverseRatio = (1 - ratio) * 100;
+        const iqLow = iqMean - sigma * iqSigma;
+        const iqHigh = iqMean + sigma * iqSigma;
+
+        iqSigmaValue.textContent = iqSigma.toFixed(0);
+        percentValue.textContent = (ratio * 100).toFixed(2);
+        maxZValue.textContent = zMax.toFixed(1);
+
+        info.textContent =
+          `z = ${sigma.toFixed(2)}\n` +
+          `max z = ${zMax.toFixed(1)}\n` +
+          `ratio = ${(ratio * 100).toFixed(2)}% (inverse ${inverseRatio.toFixed(2)}%)\n` +
+          `IQ sigma = ${iqSigma.toFixed(0)}\n` +
+          `IQ range = ${iqLow.toFixed(1)} ~ ${iqHigh.toFixed(1)}`;
+
+        drawChart(sigma, zMax);
+      }
+
+      iqSigmaInput.addEventListener("input", syncAndRender);
+      percentInput.addEventListener("input", syncAndRender);
+      maxZInput.addEventListener("input", syncAndRender);
+
+      syncAndRender();
+    </script>
+  </body>
+</html>
