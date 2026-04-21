@@ -31,7 +31,11 @@ def main():
         with socketserver.TCPServer(("", PORT), Handler) as httpd:
             print("웹서버가 시작되었습니다!")
             print(f"브라우저에서 http://localhost:{PORT} 를 열어주세요.")
-            httpd.serve_forever()
+            try:
+                httpd.serve_forever()
+            except KeyboardInterrupt:
+                print("\nCtrl+C 감지: 웹서버를 종료합니다.")
+                httpd.shutdown()
     except OSError as e:
         if e.errno == 98 or e.errno == 10048:  # Address already in use
             print(f"오류: 포트 {PORT}가 이미 사용 중입니다.")

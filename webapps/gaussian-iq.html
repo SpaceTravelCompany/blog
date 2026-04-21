@@ -12,21 +12,25 @@
 
       html,
       body {
+        height: 100%;
         margin: 0;
         background: #111827;
         color: #e5e7eb;
+        overflow: hidden;
+        scrollbar-width: none;
+      }
+
+      body::-webkit-scrollbar {
+        display: none;
       }
 
       .layout {
         max-width: 1040px;
-        margin: 16px auto;
-        padding: 0 16px 20px;
-      }
-
-      h1 {
-        margin: 0 0 10px;
-        font-size: 22px;
-        font-weight: 600;
+        margin: 10px auto;
+        padding: 8px 16px 10px;
+        box-sizing: border-box;
+        min-height: 100%;
+        overflow: hidden;
       }
 
       .chart-wrap {
@@ -46,8 +50,8 @@
 
       .info-box {
         position: absolute;
-        left: 18px;
-        top: 18px;
+        left: 10px;
+        top: 10px;
         padding: 8px 10px;
         border-radius: 8px;
         background: rgba(245, 158, 11, 0.2);
@@ -57,41 +61,10 @@
         white-space: pre-line;
       }
 
-      @media (max-width: 768px) {
-        .layout {
-          margin: 10px auto;
-          padding: 0 10px 14px;
-        }
-
-        h1 {
-          font-size: 18px;
-          margin-bottom: 8px;
-        }
-
-        .chart-wrap {
-          padding: 8px;
-        }
-
-        .info-box {
-          position: absolute;
-          left: 12px;
-          top: 12px;
-          margin-top: 0;
-          max-width: calc(100% - 24px);
-          font-size: 12px;
-          line-height: 1.35;
-        }
-
-        .controls {
-          margin-top: 12px;
-          gap: 8px;
-        }
-      }
-
       .controls {
-        margin-top: 16px;
+        margin-top: 10px;
         display: grid;
-        gap: 10px;
+        gap: 8px;
       }
 
       label {
@@ -107,7 +80,6 @@
   </head>
   <body>
     <main class="layout">
-      <h1>Gaussian Width Ratio Sliders</h1>
       <section class="chart-wrap">
         <canvas id="chart" width="980" height="460"></canvas>
         <div id="info" class="info-box"></div>
@@ -117,8 +89,11 @@
         <label for="iqSigma">IQ sigma: <span id="iqSigmaValue">15</span></label>
         <input id="iqSigma" type="range" min="5" max="40" step="1" value="15" />
 
-        <label for="percent">Percent %: <span id="percentValue">68.27</span></label>
-        <input id="percent" type="range" min="0" max="100" step="0.1" value="68.27" />
+        <label for="percent">Percent %: <span id="percentValue">68.2689</span></label>
+        <input id="percent" type="range" min="0" max="100" step="0.0001" value="68.2689" />
+
+        <label for="zSigma">z: <span id="zSigmaValue">1.0000</span></label>
+        <input id="zSigma" type="range" min="0" max="6" step="0.0001" value="1.0000" />
 
         <label for="maxZ">Max z: <span id="maxZValue">6.0</span></label>
         <input id="maxZ" type="range" min="3" max="6" step="0.1" value="6" />
@@ -135,10 +110,12 @@
 
       const iqSigmaInput = document.getElementById("iqSigma");
       const percentInput = document.getElementById("percent");
+      const zSigmaInput = document.getElementById("zSigma");
       const maxZInput = document.getElementById("maxZ");
 
       const iqSigmaValue = document.getElementById("iqSigmaValue");
       const percentValue = document.getElementById("percentValue");
+      const zSigmaValue = document.getElementById("zSigmaValue");
       const maxZValue = document.getElementById("maxZValue");
 
       function erf(x) {
@@ -282,45 +259,55 @@
         ctx.fillText("z", left + plotW + 6, top + plotH + 4);
       }
 
-      function syncAndRender() {
+      function syncAndRender(source = "percent") {
         const iqSigma = Number(iqSigmaInput.value);
         const zMax = Number(maxZInput.value);
+        zSigmaInput.max = zMax.toFixed(4);
 
-        let ratio = Number(percentInput.value) / 100;
-        let sigma = ratioToSigma(ratio, zMax);
-        if (sigma > zMax) {
-          sigma = zMax;
+        let ratio;
+        let sigma;
+
+        if (source === "z" || source === "maxZ") {
+          sigma = Number(zSigmaInput.value);
+          if (!Number.isFinite(sigma)) sigma = 0;
+          sigma = Math.min(Math.max(sigma, minSigma), zMax);
           ratio = gaussianWidthRatio(sigma);
-          percentInput.value = (ratio * 100).toFixed(2);
+          percentInput.value = (ratio * 100).toFixed(4);
+        } else {
+          ratio = Number(percentInput.value) / 100;
+          if (!Number.isFinite(ratio)) ratio = 0;
+          ratio = Math.min(Math.max(ratio, 0), 1);
+          sigma = ratioToSigma(ratio, zMax);
+          sigma = Math.min(Math.max(sigma, minSigma), zMax);
+          ratio = gaussianWidthRatio(sigma);
+          percentInput.value = (ratio * 100).toFixed(4);
         }
 
-        if (sigma < minSigma) {
-          sigma = minSigma;
-          ratio = gaussianWidthRatio(sigma);
-          percentInput.value = (ratio * 100).toFixed(2);
-        }
+        zSigmaInput.value = sigma.toFixed(4);
 
         const inverseRatio = (1 - ratio) * 100;
         const iqLow = iqMean - sigma * iqSigma;
         const iqHigh = iqMean + sigma * iqSigma;
 
         iqSigmaValue.textContent = iqSigma.toFixed(0);
-        percentValue.textContent = (ratio * 100).toFixed(2);
+        percentValue.textContent = (ratio * 100).toFixed(4);
+        zSigmaValue.textContent = sigma.toFixed(4);
         maxZValue.textContent = zMax.toFixed(1);
 
         info.textContent =
-          `z = ${sigma.toFixed(2)}\n` +
+          `z = ${sigma.toFixed(4)}\n` +
           `max z = ${zMax.toFixed(1)}\n` +
-          `ratio = ${(ratio * 100).toFixed(2)}% (inverse ${inverseRatio.toFixed(2)}%)\n` +
+          `ratio = ${(ratio * 100).toFixed(4)}% (inverse ${inverseRatio.toFixed(4)}%)\n` +
           `IQ sigma = ${iqSigma.toFixed(0)}\n` +
           `IQ range = ${iqLow.toFixed(1)} ~ ${iqHigh.toFixed(1)}`;
 
         drawChart(sigma, zMax);
       }
 
-      iqSigmaInput.addEventListener("input", syncAndRender);
-      percentInput.addEventListener("input", syncAndRender);
-      maxZInput.addEventListener("input", syncAndRender);
+      iqSigmaInput.addEventListener("input", () => syncAndRender("iq"));
+      percentInput.addEventListener("input", () => syncAndRender("percent"));
+      zSigmaInput.addEventListener("input", () => syncAndRender("z"));
+      maxZInput.addEventListener("input", () => syncAndRender("maxZ"));
 
       syncAndRender();
     </script>
