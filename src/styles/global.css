@@ -340,7 +340,11 @@ a {
 }
 
 .post-toc {
+  position: sticky;
+  top: calc(var(--header-offset) + 12px);
+  align-self: start;
   width: 280px;
+  max-height: calc(100vh - var(--header-offset) - 24px);
 }
 
 .post-toc.is-empty {
@@ -348,12 +352,11 @@ a {
 }
 
 .post-toc-card {
-  position: sticky;
-  top: calc(var(--header-offset) + 12px);
-  max-height: calc(100vh - var(--header-offset) - 24px);
+  max-height: inherit;
   padding: 1.25rem 1rem;
   border-radius: 12px;
   overflow-y: auto;
+  overscroll-behavior: contain;
   scrollbar-width: none;
 }
 
