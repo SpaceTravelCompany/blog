@@ -12,7 +12,6 @@
 
       html,
       body {
-        height: 100%;
         margin: 0;
         background: #111827;
         color: #e5e7eb;
@@ -29,7 +28,6 @@
         margin: 10px auto;
         padding: 8px 16px 10px;
         box-sizing: border-box;
-        min-height: 100%;
         overflow: hidden;
       }
 
@@ -76,6 +74,18 @@
         width: 100%;
         accent-color: #10b981;
       }
+
+      input[type="number"] {
+        width: 200px;
+        margin-left: 6px;
+        padding: 2px 6px;
+        box-sizing: border-box;
+        border: 1px solid #4b5563;
+        border-radius: 6px;
+        background: #111827;
+        color: #e5e7eb;
+        font: inherit;
+      }
     </style>
   </head>
   <body>
@@ -86,17 +96,16 @@
       </section>
 
       <section class="controls">
-        <label for="iqSigma">IQ sigma: <span id="iqSigmaValue">15</span></label>
-        <input id="iqSigma" type="range" min="5" max="40" step="1" value="15" />
+        <label for="iqSigmaValue">IQ sigma: <input id="iqSigmaValue" type="number" min="1" step="any" value="15" /></label>
 
-        <label for="percent">Percent %: <span id="percentValue">68.2689</span></label>
-        <input id="percent" type="range" min="0" max="100" step="0.0001" value="68.2689" />
+        <label for="percent">Percent %: <input id="percentValue" type="number" min="0" max="100" step="any" value="68.2689" /></label>
+        <input id="percent" type="range" min="0" max="100" step="any" value="68.2689" />
 
-        <label for="zSigma">z: <span id="zSigmaValue">1.0000</span></label>
-        <input id="zSigma" type="range" min="0" max="6" step="0.0001" value="1.0000" />
+        <label for="zSigma">z: <input id="zSigmaValue" type="number" min="0" max="6" step="any" value="1.0000" /></label>
+        <input id="zSigma" type="range" min="0" max="6" step="any" value="1.0000" />
 
-        <label for="maxZ">Max z: <span id="maxZValue">6.0</span></label>
-        <input id="maxZ" type="range" min="3" max="6" step="0.1" value="6" />
+        <label for="maxZ">Max z: <input id="maxZValue" type="number" min="2" max="8" step="any" value="6.0" /></label>
+        <input id="maxZ" type="range" min="2" max="8" step="any" value="6" />
       </section>
     </main>
 
@@ -108,7 +117,6 @@
       const ctx = canvas.getContext("2d");
       const info = document.getElementById("info");
 
-      const iqSigmaInput = document.getElementById("iqSigma");
       const percentInput = document.getElementById("percent");
       const zSigmaInput = document.getElementById("zSigma");
       const maxZInput = document.getElementById("maxZ");
@@ -117,6 +125,19 @@
       const percentValue = document.getElementById("percentValue");
       const zSigmaValue = document.getElementById("zSigmaValue");
       const maxZValue = document.getElementById("maxZValue");
+
+      const valuePairs = [
+        { editor: percentValue, slider: percentInput, source: "percent", key: "percent" },
+        { editor: zSigmaValue, slider: zSigmaInput, source: "z", key: "zSigma" },
+        { editor: maxZValue, slider: maxZInput, source: "maxZ", key: "maxZ" },
+      ];
+
+      const values = {
+        iqSigma: Number(iqSigmaValue.value),
+        percent: Number(percentValue.value),
+        zSigma: Number(zSigmaValue.value),
+        maxZ: Number(maxZValue.value),
+      };
 
       function erf(x) {
         const sign = x < 0 ? -1 : 1;
@@ -157,6 +178,40 @@
 
       function normalPdf(x) {
         return (1 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * x * x);
+      }
+
+      function clampToInput(value, input) {
+        const min = Number(input.min);
+        const max = Number(input.max);
+        let next = Number(value);
+        if (!Number.isFinite(next)) {
+          next = Number(input.value);
+        }
+        if (Number.isFinite(min)) {
+          next = Math.max(next, min);
+        }
+        if (Number.isFinite(max)) {
+          next = Math.min(next, max);
+        }
+        return next;
+      }
+
+      function setSliderPreview(slider, value) {
+        slider.value = clampToInput(value, slider);
+      }
+
+      function commitValueEditor(editor, slider, source, key) {
+        values[key] = clampToInput(editor.value, editor);
+        editor.value = String(values[key]);
+        setSliderPreview(slider, values[key]);
+        syncAndRender(source);
+      }
+
+      function commitIqSigmaValue() {
+        const value = Number(iqSigmaValue.value);
+        values.iqSigma = Number.isFinite(value) ? Math.max(value, 1) : 1;
+        iqSigmaValue.value = String(values.iqSigma);
+        syncAndRender("iq");
       }
 
       function drawChart(sigma, zMax) {
@@ -260,54 +315,78 @@
       }
 
       function syncAndRender(source = "percent") {
-        const iqSigma = Number(iqSigmaInput.value);
-        const zMax = Number(maxZInput.value);
-        zSigmaInput.max = zMax.toFixed(4);
+        const iqSigma = values.iqSigma;
+        const zMax = values.maxZ;
+        zSigmaInput.max = String(zMax);
+        zSigmaValue.max = String(zMax);
 
         let ratio;
         let sigma;
 
         if (source === "z" || source === "maxZ") {
-          sigma = Number(zSigmaInput.value);
-          if (!Number.isFinite(sigma)) sigma = 0;
+          sigma = values.zSigma;
           sigma = Math.min(Math.max(sigma, minSigma), zMax);
           ratio = gaussianWidthRatio(sigma);
-          percentInput.value = (ratio * 100).toFixed(4);
+          values.percent = ratio * 100;
+          setSliderPreview(percentInput, values.percent);
         } else {
-          ratio = Number(percentInput.value) / 100;
-          if (!Number.isFinite(ratio)) ratio = 0;
-          ratio = Math.min(Math.max(ratio, 0), 1);
+          ratio = Math.min(Math.max(values.percent / 100, 0), 1);
           sigma = ratioToSigma(ratio, zMax);
           sigma = Math.min(Math.max(sigma, minSigma), zMax);
           ratio = gaussianWidthRatio(sigma);
-          percentInput.value = (ratio * 100).toFixed(4);
+          values.percent = ratio * 100;
         }
 
-        zSigmaInput.value = sigma.toFixed(4);
+        values.zSigma = sigma;
+        setSliderPreview(zSigmaInput, sigma);
 
         const inverseRatio = (1 - ratio) * 100;
         const iqLow = iqMean - sigma * iqSigma;
         const iqHigh = iqMean + sigma * iqSigma;
 
-        iqSigmaValue.textContent = iqSigma.toFixed(0);
-        percentValue.textContent = (ratio * 100).toFixed(4);
-        zSigmaValue.textContent = sigma.toFixed(4);
-        maxZValue.textContent = zMax.toFixed(1);
+        iqSigmaValue.value = String(iqSigma);
+        percentValue.value = String(values.percent);
+        zSigmaValue.value = String(sigma);
+        maxZValue.value = String(zMax);
 
         info.textContent =
           `z = ${sigma.toFixed(4)}\n` +
           `max z = ${zMax.toFixed(1)}\n` +
           `ratio = ${(ratio * 100).toFixed(4)}% (inverse ${inverseRatio.toFixed(4)}%)\n` +
-          `IQ sigma = ${iqSigma.toFixed(0)}\n` +
+          `IQ sigma = ${iqSigma}\n` +
           `IQ range = ${iqLow.toFixed(1)} ~ ${iqHigh.toFixed(1)}`;
 
         drawChart(sigma, zMax);
       }
 
-      iqSigmaInput.addEventListener("input", () => syncAndRender("iq"));
-      percentInput.addEventListener("input", () => syncAndRender("percent"));
-      zSigmaInput.addEventListener("input", () => syncAndRender("z"));
-      maxZInput.addEventListener("input", () => syncAndRender("maxZ"));
+      percentInput.addEventListener("input", () => {
+        values.percent = Number(percentInput.value);
+        syncAndRender("percent");
+      });
+      zSigmaInput.addEventListener("input", () => {
+        values.zSigma = Number(zSigmaInput.value);
+        syncAndRender("z");
+      });
+      maxZInput.addEventListener("input", () => {
+        values.maxZ = Number(maxZInput.value);
+        syncAndRender("maxZ");
+      });
+
+      iqSigmaValue.addEventListener("change", commitIqSigmaValue);
+      iqSigmaValue.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          iqSigmaValue.blur();
+        }
+      });
+
+      for (const { editor, slider, source, key } of valuePairs) {
+        editor.addEventListener("change", () => commitValueEditor(editor, slider, source, key));
+        editor.addEventListener("keydown", (event) => {
+          if (event.key === "Enter") {
+            editor.blur();
+          }
+        });
+      }
 
       syncAndRender();
     </script>
