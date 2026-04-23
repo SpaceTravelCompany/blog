@@ -494,6 +494,18 @@ a {
   background: var(--bg-light);
 }
 
+.post-body hr {
+  height: 1px;
+  margin: 2.5rem 0;
+  border: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--border-color), transparent 25%),
+    transparent
+  );
+}
+
 .post-body code:not([class*="language-"]) {
   padding: 0.2rem 0.45rem;
   border: 1px solid var(--border-color);
@@ -507,12 +519,38 @@ a {
 .post-body pre {
   max-width: 100%;
   overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--text-light), transparent 55%) transparent;
 }
 
 .post-body pre[class*="language-"] {
   padding: 1.5rem !important;
   border-radius: 12px !important;
   box-shadow: var(--shadow) !important;
+}
+
+.post-body pre::-webkit-scrollbar {
+  height: 8px;
+}
+
+.post-body pre::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.post-body pre::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
+  background-color: color-mix(in srgb, var(--text-light), transparent 55%);
+}
+
+.post-body pre::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--text-light), transparent 35%);
+}
+
+.post-body pre code {
+  font-size: 0.88rem !important;
+  line-height: 1.65 !important;
 }
 
 [data-theme="dark"] .post-body pre[class*="language-"] {
