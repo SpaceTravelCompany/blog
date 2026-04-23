@@ -1,0 +1,16 @@
+---
+import { basePath, siteTitle } from "../lib/site.js";
+---
+
+<header class="header">
+  <nav class="navbar">
+    <div class="container">
+      <div class="nav-brand">
+        <a href={basePath}>{siteTitle}</a>
+      </div>
+      <button class="theme-toggle" id="themeToggle" aria-label="다크 모드 토글">
+        <span class="theme-icon">☀️</span>
+      </button>
+    </div>
+  </nav>
+</header>

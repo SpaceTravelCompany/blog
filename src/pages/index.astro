@@ -1,0 +1,148 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PostCard from "../components/PostCard.astro";
+import Sidebar from "../components/Sidebar.astro";
+import { getAllPosts, groupPostsByCategory } from "../lib/posts.js";
+import type { Post } from "../lib/types";
+
+const posts = (await getAllPosts()).filter(Boolean) as Post[];
+const categories = groupPostsByCategory(posts) as Record<string, Post[]>;
+const recentPosts = posts.slice(0, 3);
+---
+
+<BaseLayout>
+  <main class="main-content">
+    <div class="container">
+      <div class="content-layout">
+        <div class="posts-section">
+          <h2 class="section-title" id="sectionTitle" style="display: none;"></h2>
+          <div id="postsContainer">
+            {posts.map((post) => <PostCard post={post} />)}
+          </div>
+          <div class="pagination" id="pagination"></div>
+        </div>
+
+        <Sidebar posts={posts} categories={categories} recentPosts={recentPosts} />
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const postsPerPage = 5;
+    const cards = [...document.querySelectorAll<HTMLElement>("[data-post-card]")];
+    const pagination = document.getElementById("pagination");
+    const sectionTitle = document.getElementById("sectionTitle");
+    const searchForm = document.querySelector(".search-form");
+    const searchInput = document.getElementById("search-input") as HTMLInputElement | null;
+    const categoryLinks = [...document.querySelectorAll<HTMLElement>(".category-link")];
+    let selectedCategory: string | null = null;
+    let searchTerm = "";
+
+    function matchingCards() {
+      return cards.filter((card) => {
+        const textMatches = !searchTerm || card.dataset.search?.includes(searchTerm);
+        const categoryMatches = !selectedCategory || card.dataset.category === selectedCategory;
+        return textMatches && categoryMatches;
+      });
+    }
+
+    function render(page = 1): void {
+      const matches = matchingCards();
+      const totalPages = Math.ceil(matches.length / postsPerPage);
+      const start = (page - 1) * postsPerPage;
+      const visible = new Set(matches.slice(start, start + postsPerPage));
+
+      cards.forEach((card) => {
+        card.hidden = !visible.has(card);
+      });
+
+      updateSectionTitle(matches.length);
+      updatePagination(page, totalPages, matches.length);
+    }
+
+    function updateSectionTitle(count: number): void {
+      if (!sectionTitle) return;
+
+      const title = searchTerm
+        ? `검색 결과 (${count}개)`
+        : selectedCategory
+          ? `${selectedCategory} 포스트 (${count}개)`
+          : "";
+
+      sectionTitle.textContent = title;
+      sectionTitle.style.display = title ? "block" : "none";
+    }
+
+    function updatePagination(currentPage: number, totalPages: number, totalMatches: number): void {
+      if (!pagination) return;
+
+      pagination.replaceChildren();
+      if (totalMatches === 0) return;
+
+      addPageButton("이전", currentPage - 1, currentPage === 1);
+      for (let pageNumber = 1; pageNumber <= totalPages; pageNumber += 1) {
+        addPageButton(String(pageNumber), pageNumber, false, pageNumber === currentPage);
+      }
+      addPageButton("다음", currentPage + 1, currentPage === totalPages);
+    }
+
+    function addPageButton(label: string, page: number, disabled: boolean, active = false): void {
+      if (!pagination) return;
+      if (disabled) {
+        const el = document.createElement("span");
+        el.className = "pagination-btn disabled";
+        el.textContent = label;
+        pagination.appendChild(el);
+        return;
+      }
+
+      const el = document.createElement("a");
+      el.className = `pagination-btn${disabled ? " disabled" : ""}${active ? " active" : ""}`;
+      el.textContent = label;
+      el.href = "#";
+      el.addEventListener("click", (event) => {
+        event.preventDefault();
+        render(page);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+      pagination.appendChild(el);
+    }
+
+    searchForm?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      searchTerm = searchInput?.value.trim().toLowerCase() ?? "";
+      selectedCategory = null;
+      updateActiveCategory();
+      render(1);
+    });
+
+    searchInput?.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        searchInput.value = "";
+        searchTerm = "";
+        render(1);
+      }
+    });
+
+    categoryLinks.forEach((link) => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        const category = link.dataset.category;
+        selectedCategory = category === "all" || selectedCategory === category ? null : category ?? null;
+        searchTerm = "";
+        if (searchInput) searchInput.value = "";
+        updateActiveCategory();
+        render(1);
+      });
+    });
+
+    function updateActiveCategory(): void {
+      categoryLinks.forEach((link) => {
+        const isActive = selectedCategory ? link.dataset.category === selectedCategory : link.dataset.category === "all";
+        link.classList.toggle("active", isActive);
+      });
+    }
+
+    render(1);
+  </script>
+</BaseLayout>

@@ -1,0 +1,28 @@
+---
+import { postUrl } from "../lib/site.js";
+import type { Post } from "../lib/types";
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+---
+
+<article
+  class="post-card"
+  data-post-card
+  data-search={`${post.title} ${post.searchText ?? post.excerpt ?? ""}`.toLowerCase()}
+  data-category={post.category}
+>
+  <div class="post-content">
+    <div class="post-meta">
+      <span class="post-date">{post.date}</span>
+      <span class="post-category">{post.category}</span>
+    </div>
+    <h3 class="post-title">
+      <a href={postUrl(post.id)}>{post.title}</a>
+    </h3>
+    <p class="post-excerpt">{post.excerpt}</p>
+  </div>
+</article>

@@ -1,0 +1,56 @@
+---
+import { formatDate, postUrl } from "../lib/site.js";
+import type { Post } from "../lib/types";
+
+interface Props {
+  posts: Post[];
+  categories: Record<string, Post[]>;
+  recentPosts: Post[];
+}
+
+const { posts, categories, recentPosts } = Astro.props;
+const sortedCategories = Object.entries(categories).sort(([a], [b]) => a.localeCompare(b, "ko"));
+---
+
+<aside class="sidebar">
+  <div class="sidebar-widget">
+    <form class="search-form">
+      <input type="search" id="search-input" placeholder="검색어를 입력하세요..." class="search-input" />
+      <button type="submit" class="search-btn">검색</button>
+    </form>
+  </div>
+
+  <div class="sidebar-widget">
+    <h3 class="widget-title">카테고리</h3>
+    <ul class="category-list" id="categoryList">
+      <li>
+        <a href="#" class="category-link active" data-category="all">전체 <span>({posts.length})</span></a>
+      </li>
+      {
+        sortedCategories.map(([category, categoryPosts]) => (
+          <li>
+            <a href="#" class="category-link" data-category={category}>
+              {category} <span>({categoryPosts.length})</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <div class="sidebar-widget recent-posts-widget">
+    <h3 class="widget-title">최근 포스트</h3>
+    <ul class="recent-posts">
+      {
+        recentPosts.map((post) => (
+          <li>
+            <a href={postUrl(post.id)}>
+              <span class="recent-post-title">{post.title}</span>
+              <span class="recent-post-date">{formatDate(post.date)}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</aside>

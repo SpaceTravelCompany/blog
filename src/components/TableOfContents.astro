@@ -1,0 +1,28 @@
+---
+import type { Heading } from "../lib/types";
+
+interface Props {
+  headings: Heading[];
+}
+
+const { headings } = Astro.props;
+const isEmpty = headings.length === 0;
+---
+
+<aside class={`post-toc${isEmpty ? " is-empty" : ""}`} aria-label="포스트 목차">
+  <div class="post-toc-card">
+    <nav class="post-toc-nav">
+      {
+        isEmpty ? (
+          <p class="post-toc-empty">목차를 만들 헤딩이 없습니다.</p>
+        ) : (
+          headings.map((heading) => (
+            <a class={`post-toc-link level-h${heading.depth}`} href={`#${heading.id}`} data-target-id={heading.id}>
+              {heading.text}
+            </a>
+          ))
+        )
+      }
+    </nav>
+  </div>
+</aside>

@@ -1,0 +1,4 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "exclude": ["prism.js", "public/prism.js", "dist", "node_modules"]
+}

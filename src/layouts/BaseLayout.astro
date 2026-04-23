@@ -1,0 +1,66 @@
+---
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import { basePath, siteTitle } from "../lib/site.js";
+import "../styles/global.css";
+
+const {
+  title = siteTitle,
+  description = "우주 여행사 블로그, 게임 개발 하는 로봇",
+  includePostAssets = false,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content="우주여행사" />
+    <link rel="icon" type="image/x-icon" href={`${basePath}favicon.ico`} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    {
+      includePostAssets && (
+        <>
+          <link rel="stylesheet" href={`${basePath}prism.css`} />
+          <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css"
+          />
+          <script is:inline src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.js"></script>
+          <script is:inline src="https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/contrib/auto-render.min.js"></script>
+          <script is:inline src={`${basePath}prism.js`}></script>
+        </>
+      )
+    }
+  </head>
+  <body>
+    <Header />
+    <slot />
+    <Footer />
+    <script>
+      const themeToggle = document.getElementById("themeToggle");
+      if (themeToggle) {
+        const themeIcon = themeToggle.querySelector(".theme-icon");
+        const currentTheme = localStorage.getItem("theme") || "light";
+        document.documentElement.setAttribute("data-theme", currentTheme);
+        if (themeIcon) themeIcon.textContent = currentTheme === "dark" ? "🌙" : "☀️";
+
+        themeToggle.addEventListener("click", () => {
+          const current = document.documentElement.getAttribute("data-theme");
+          const newTheme = current === "dark" ? "light" : "dark";
+          document.documentElement.setAttribute("data-theme", newTheme);
+          localStorage.setItem("theme", newTheme);
+          if (themeIcon) themeIcon.textContent = newTheme === "dark" ? "🌙" : "☀️";
+        });
+      }
+    </script>
+  </body>
+</html>

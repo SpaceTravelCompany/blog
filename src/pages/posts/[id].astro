@@ -1,0 +1,116 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import TableOfContents from "../../components/TableOfContents.astro";
+import { renderMarkdown } from "../../lib/markdown.js";
+import { getPostById, getPostIndex } from "../../lib/posts.js";
+import { basePath, siteTitle } from "../../lib/site.js";
+import type { Post } from "../../lib/types";
+
+export async function getStaticPaths() {
+  const posts = (await getPostIndex()) as Post[];
+  return posts.map((post) => ({
+    params: { id: post.id },
+  }));
+}
+
+const { id } = Astro.params;
+const post = (await getPostById(id)) as Post | null;
+
+if (!post) {
+  return Astro.redirect("/");
+}
+
+const { html, headings } = renderMarkdown(post.body);
+const tocHeadings = headings[0]?.depth === 1 ? headings.slice(1) : headings;
+---
+
+<BaseLayout title={`${post.title} - ${siteTitle}`} includePostAssets>
+  <main class="main-content">
+    <div class="container">
+      <div class={`post-page-layout${tocHeadings.length === 0 ? " no-toc" : ""}`}>
+        <TableOfContents headings={tocHeadings} />
+        <article class="post-detail">
+          <div class="post-header">
+            <div class="post-meta">
+              <span class="post-date">{post.date}</span>
+              <span class="post-category">{post.category}</span>
+            </div>
+            <h1 class="post-title">{post.title}</h1>
+          </div>
+          <div class="post-body" id="postBody" set:html={html} />
+          <div class="post-footer">
+            <a href={basePath} class="back-to-list">← 목록으로 돌아가기</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const postBody = document.getElementById("postBody");
+    const renderMath = (globalThis as any).renderMathInElement;
+    const prism = (globalThis as any).Prism;
+
+    if (postBody && renderMath) {
+      renderMath(postBody, {
+        delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "\\(", right: "\\)", display: false },
+        ],
+        throwOnError: false,
+      });
+    }
+
+    if (prism) {
+      prism.highlightAll();
+    }
+
+    document.querySelectorAll('#postBody a[href^="#"], .post-toc-link[href^="#"]').forEach((anchor) => {
+      anchor.addEventListener("click", (event) => {
+        const href = anchor.getAttribute("href");
+        if (!href || href === "#") return;
+
+        try {
+          const target = document.querySelector(href);
+          if (target) {
+            event.preventDefault();
+            history.replaceState(null, "", href);
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        } catch {}
+      });
+    });
+
+    const tocLinks = [...document.querySelectorAll<HTMLElement>(".post-toc-link")];
+    const headings = tocLinks
+      .map((link) => document.getElementById(link.dataset.targetId ?? ""))
+      .filter((heading): heading is HTMLElement => Boolean(heading));
+
+    if (headings.length > 0) {
+      const setActiveLink = (id: string): void => {
+        tocLinks.forEach((link) => {
+          link.classList.toggle("active", link.dataset.targetId === id);
+        });
+      };
+
+      const tocObserver = new IntersectionObserver(
+        (entries) => {
+          const visibleHeadings = entries
+            .filter((entry) => entry.isIntersecting)
+            .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+          if (visibleHeadings.length > 0) {
+            setActiveLink(visibleHeadings[0].target.id);
+          }
+        },
+        {
+          rootMargin: "-18% 0px -68% 0px",
+          threshold: 0,
+        },
+      );
+
+      headings.forEach((heading) => tocObserver.observe(heading));
+      setActiveLink(headings[0].id);
+    }
+  </script>
+</BaseLayout>
