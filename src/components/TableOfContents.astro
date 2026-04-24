@@ -9,7 +9,16 @@ const { headings } = Astro.props;
 const isEmpty = headings.length === 0;
 ---
 
-<aside class={`post-toc${isEmpty ? " is-empty" : ""}`} aria-label="포스트 목차">
+{
+  !isEmpty && (
+    <button class="toc-toggle" type="button" aria-label="목차 열기" aria-controls="postToc" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </button>
+  )
+}
+<aside id="postToc" class={`post-toc${isEmpty ? " is-empty" : ""}`} aria-label="포스트 목차">
   <div class="post-toc-card">
     <nav class="post-toc-nav">
       {

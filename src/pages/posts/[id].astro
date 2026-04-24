@@ -65,6 +65,27 @@ const tocHeadings = headings[0]?.depth === 1 ? headings.slice(1) : headings;
       prism.highlightAll();
     }
 
+    const tocToggle = document.querySelector<HTMLButtonElement>(".toc-toggle");
+    const postToc = document.getElementById("postToc");
+
+    const setTocOpen = (isOpen: boolean): void => {
+      postToc?.classList.toggle("is-open", isOpen);
+      tocToggle?.setAttribute("aria-expanded", String(isOpen));
+      tocToggle?.setAttribute("aria-label", isOpen ? "목차 닫기" : "목차 열기");
+    };
+
+    tocToggle?.addEventListener("click", () => {
+      setTocOpen(!postToc?.classList.contains("is-open"));
+    });
+
+    postToc?.addEventListener("click", (event) => {
+      if (event.target === postToc) setTocOpen(false);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") setTocOpen(false);
+    });
+
     document.querySelectorAll('#postBody a[href^="#"], .post-toc-link[href^="#"]').forEach((anchor) => {
       anchor.addEventListener("click", (event) => {
         const href = anchor.getAttribute("href");
@@ -76,6 +97,7 @@ const tocHeadings = headings[0]?.depth === 1 ? headings.slice(1) : headings;
             event.preventDefault();
             history.replaceState(null, "", href);
             target.scrollIntoView({ behavior: "smooth", block: "start" });
+            if (anchor.classList.contains("post-toc-link")) setTocOpen(false);
           }
         } catch {}
       });
