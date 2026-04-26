@@ -677,7 +677,7 @@ a {
     width: 46px;
     height: 46px;
     padding: 0;
-    border: 3px solid var(--text-color);
+    border: 2px solid var(--text-color);
     border-radius: 50%;
     color: var(--text-color);
     background: var(--bg-color);
@@ -694,7 +694,7 @@ a {
   .toc-toggle span {
     display: block;
     width: 19px;
-    height: 3px;
+    height: 2px;
     border-radius: 999px;
     background: currentColor;
   }
