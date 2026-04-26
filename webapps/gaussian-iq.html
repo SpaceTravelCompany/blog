@@ -365,11 +365,11 @@
         maxZValue.value = String(zMax);
 
         info.textContent =
-          `z = ${sigma.toFixed(4)}\n` +
-          `max z = ${zMax.toFixed(1)}\n` +
+          `z = ${sigma}\n` +
+          `max z = ${zMax}\n` +
           `ratio = ${(ratio * 100).toFixed(4)}% (inverse ${inverseRatio.toFixed(4)}%)\n` +
           `IQ sigma = ${iqSigma}\n` +
-          `IQ range = ${iqLow.toFixed(1)} ~ ${iqHigh.toFixed(1)}`;
+          `IQ range = ${iqLow} ~ ${iqHigh}`;
 
         drawChart(sigma, zMax);
       }
