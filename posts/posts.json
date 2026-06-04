@@ -1,6 +1,6 @@
 [
 	{
-		"all_posts_count": 24
+		"all_posts_count": 25
 	},
 	{
 		"category_posts": [
@@ -62,8 +62,13 @@
 			},
 			{
 				"category": "기술",
-				"count": 11,
+				"count": 12,
 				"posts": [
+					{
+						"id": "25",
+						"title": "Gmail → Discord 중요 메일 알림 자동화",
+						"date": "2026-06-04 09:30"
+					},
 					{
 						"id": "14",
 						"title": "웹 앱 표준편차 그래프 예제",
