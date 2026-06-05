@@ -1,6 +1,6 @@
 [
 	{
-		"all_posts_count": 26
+		"all_posts_count": 33
 	},
 	{
 		"category_posts": [
@@ -62,7 +62,7 @@
 			},
 			{
 				"category": "기술",
-				"count": 12,
+				"count": 7,
 				"posts": [
 					{
 						"id": "25",
@@ -75,11 +75,6 @@
 						"date": "2026-04-21 10:00"
 					},
 					{
-						"id": "11",
-						"title": "Slang 문법 노트",
-						"date": "2026-02-28 22:17"
-					},
-					{
 						"id": "10",
 						"title": "Git 사용법 정리",
 						"date": "2026-02-28 17:56"
@@ -88,11 +83,6 @@
 						"id": "9",
 						"title": "glslang 사용방법",
 						"date": "2026-02-28 17:43"
-					},
-					{
-						"id": "7",
-						"title": "Vulkan vkCmdDraw... 함수로 그래픽이 안나올때",
-						"date": "2026-02-07 18:55"
 					},
 					{
 						"id": "6",
@@ -105,6 +95,62 @@
 						"date": "2026-02-05 02:47"
 					},
 					{
+						"id": "2",
+						"title": "WebGL 2, OpenGL 4.6 차이점",
+						"date": "2026-02-01 16:28"
+					},
+					{
+						"id": "1",
+						"title": "Odin Game Engine 구조",
+						"date": "2026-01-30 19:42"
+					}
+				]
+			},
+			{
+				"category": "Vulkan",
+				"count": 10,
+				"posts": [
+					{
+						"id": "33",
+						"title": "Vulkan 메모리 레이아웃 — 정렬, 캐시, 메모리 타입",
+						"date": "2026-06-04 21:00"
+					},
+					{
+						"id": "32",
+						"title": "Vulkan 컴퓨트 파이프라인",
+						"date": "2026-06-04 18:30"
+					},
+					{
+						"id": "31",
+						"title": "Vulkan 그래픽스 파이프라인 — 완벽 정리",
+						"date": "2026-06-04 18:00"
+					},
+					{
+						"id": "30",
+						"title": "Vulkan 스레드 안전성",
+						"date": "2026-06-04 17:30"
+					},
+					{
+						"id": "29",
+						"title": "Vulkan 서브패스(Subpass) 개념",
+						"date": "2026-06-04 17:00"
+					},
+					{
+						"id": "28",
+						"title": "Vulkan Descriptor / Pipeline Layout",
+						"date": "2026-06-04 16:30"
+					},
+					{
+						"id": "27",
+						"title": "Vulkan 동기화 — Fence, Semaphore, Event, Pipeline Barrier",
+						"date": "2026-06-04 16:00"
+					},
+					{
+						"id": "7",
+						"title": "Vulkan vkCmdDraw... 함수로 그래픽이 안나올때",
+						"date": "2026-02-07 18:55"
+					},
+					{
 						"id": "4",
 						"title": "Vulkan 파이프라인 배리어 — 정리",
 						"date": "2026-02-03 20:42"
@@ -113,16 +159,17 @@
 						"id": "3",
 						"title": "Vulkan Mesh Shader 기능 정리 및 지원 현황",
 						"date": "2026-02-01 17:38"
-					},
+					}
+				]
+			},
+			{
+				"category": "Slang",
+				"count": 1,
+				"posts": [
 					{
-						"id": "2",
-						"title": "WebGL 2, OpenGL 4.6 차이점",
-						"date": "2026-02-01 16:28"
-					},
-					{
-						"id": "1",
-						"title": "Odin Game Engine (중단 됨) 구조",
-						"date": "2026-01-30 19:42"
+						"id": "11",
+						"title": "Slang 문법 노트",
+						"date": "2026-02-28 22:17"
 					}
 				]
 			},

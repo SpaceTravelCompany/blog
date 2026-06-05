@@ -146,6 +146,12 @@ a {
   box-shadow: var(--shadow-hover);
 }
 
+.post-card-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
 .post-content {
   min-width: 0;
   padding: 2rem;
@@ -175,11 +181,7 @@ a {
 .post-title {
   margin-bottom: 1rem;
   line-height: 1.35;
-}
-
-.post-title a {
   color: var(--text-color);
-  text-decoration: none;
   font-size: 1.5rem;
   font-weight: 600;
   overflow-wrap: anywhere;
@@ -192,7 +194,7 @@ a {
   overflow-wrap: anywhere;
 }
 
-.post-title a:hover,
+.post-card-link:hover .post-title,
 .post-body a:hover,
 .recent-posts a:hover {
   color: var(--primary-color);
@@ -373,7 +375,7 @@ a {
 
 .post-toc-card {
   max-height: inherit;
-  padding: 1.25rem 1rem;
+  padding: 0.5rem 0.5rem;
   border-radius: 12px;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -387,6 +389,7 @@ a {
 .post-toc-nav {
   display: grid;
   gap: 0.35rem;
+  padding-left: 0.0rem;
 }
 
 .post-toc-link {
@@ -527,6 +530,193 @@ a {
     color-mix(in srgb, var(--border-color), transparent 25%),
     transparent
   );
+}
+
+.cmdstack {
+  margin: 1.5rem 0;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--bg-color);
+  box-shadow: var(--shadow);
+  font-family: Consolas, Monaco, "Courier New", monospace;
+  font-size: 0.9rem;
+}
+
+.cmdstack-section {
+  padding: 0.35rem 0;
+}
+
+.cmdstack-divider + .cmdstack-section {
+  border-top: 1px solid var(--border-color);
+}
+
+.cmdstack-divider {
+  height: 0;
+  border-top: 2px dashed color-mix(in srgb, var(--primary-color), transparent 55%);
+  margin: 0;
+}
+
+.cmdstack-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding: 0.65rem 1.25rem;
+}
+
+.cmdstack-row-tree {
+  padding-left: calc(1.25rem + var(--cmdstack-depth, 1) * 1rem);
+}
+
+.cmdstack-row + .cmdstack-row {
+  border-top: 1px solid color-mix(in srgb, var(--border-color), transparent 40%);
+}
+
+.cmdstack-cmd {
+  flex: 1 1 12rem;
+  min-width: 0;
+  color: var(--text-color);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: inherit;
+  font-size: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.cmdstack-note {
+  flex: 0 1 auto;
+  max-width: 100%;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  color: var(--primary-color);
+  background: color-mix(in srgb, var(--primary-color), transparent 88%);
+  font-size: 0.82em;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.relflow {
+  margin: 1.5rem 0;
+  padding: 1.25rem 1.5rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-color);
+  box-shadow: var(--shadow);
+  font-family: Consolas, Monaco, "Courier New", monospace;
+  font-size: 0.9rem;
+}
+
+.relflow-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.65rem 1.25rem;
+}
+
+.relflow-col-title {
+  color: var(--text-light);
+  font-size: 0.82em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.relflow-grid-spacer {
+  width: 1.5rem;
+}
+
+.relflow-box {
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-light);
+  text-align: center;
+}
+
+.relflow-line + .relflow-line {
+  margin-top: 0.35rem;
+  color: var(--text-light);
+  font-size: 0.92em;
+}
+
+.relflow-line:first-child {
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+.relflow-arrow {
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.relflow-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+  padding-top: 0.85rem;
+  border-top: 1px dashed color-mix(in srgb, var(--border-color), transparent 25%);
+}
+
+.relflow-foot-left {
+  grid-column: 1;
+}
+
+.relflow-foot-right {
+  grid-column: 3;
+}
+
+.relflow-foot-center {
+  grid-column: 1 / -1;
+  align-items: center;
+  text-align: center;
+}
+
+.relflow-foot-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  color: var(--text-light);
+  font-size: 0.88em;
+  overflow-wrap: anywhere;
+}
+
+.relflow-foot-icon {
+  flex-shrink: 0;
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .relflow-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .relflow-grid-spacer {
+    display: none;
+  }
+
+  .relflow-col-title-right {
+    margin-top: 0.25rem;
+  }
+
+  .relflow-arrow {
+    justify-self: center;
+    transform: rotate(90deg);
+  }
+
+  .relflow-foot-left,
+  .relflow-foot-right,
+  .relflow-foot-center {
+    grid-column: 1;
+  }
 }
 
 .post-body code:not([class*="language-"]) {
@@ -749,7 +939,7 @@ a {
     padding: 1.25rem;
   }
 
-  .post-title a {
+  .post-title {
     font-size: 1.25rem;
   }
 

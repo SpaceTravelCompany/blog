@@ -1,10 +1,13 @@
 import { marked } from "marked";
+import { renderCmdstack } from "./cmdstack.js";
+import { renderRelflow } from "./relflow.js";
 import { basePath } from "./site.js";
 
 export function renderMarkdown(markdown) {
   const headings = [];
   const usedIds = new Set();
   const renderer = new marked.Renderer();
+  const defaultCode = renderer.code.bind(renderer);
 
   renderer.heading = ({ tokens, depth }) => {
     const text = tokens.map((token) => token.raw ?? token.text ?? "").join("");
@@ -27,6 +30,16 @@ export function renderMarkdown(markdown) {
     const target = normalizeAssetPath(href);
     const titleAttribute = title ? ` title="${escapeHtml(title)}"` : "";
     return `<a href="${escapeHtml(target)}"${titleAttribute}>${marked.parser(tokens)}</a>`;
+  };
+
+  renderer.code = (token) => {
+    if (token.lang === "cmdstack" || token.lang === "diagram") {
+      return renderCmdstack(token.text);
+    }
+    if (token.lang === "relflow") {
+      return renderRelflow(token.text);
+    }
+    return defaultCode(token);
   };
 
   const html = marked(markdown, { renderer })
