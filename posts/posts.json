@@ -1,6 +1,6 @@
 [
 	{
-		"all_posts_count": 25
+		"all_posts_count": 26
 	},
 	{
 		"category_posts": [
@@ -162,6 +162,17 @@
 						"id": "9",
 						"title": "컴파일러 토큰화 이후 파싱 & AST 정리 (from GPT)",
 						"date": "2026-04-14 08:08"
+					}
+				]
+			},
+			{
+				"category": "후기",
+				"count": 1,
+				"posts": [
+					{
+						"id": "26",
+						"title": "GPT 5.6 사용해보고 느낀 장단점 리뷰",
+						"date": "2026-07-19 22:38"
 					}
 				]
 			}
